@@ -18,7 +18,10 @@ interface UpdateProductParams {
 interface UpdateParams {
   id: string | number;
   updateData: Record<string, any>;
+
 }
+
+
 
 export const getAuthToken = () => Cookies.get('access_token');
  
@@ -385,12 +388,6 @@ export const useSubcategoryProducts = () => {
   });
 };
 
-export const useOrders = () => {
-  return useQuery({
-    queryKey: ['orders'],
-    queryFn: () => fetchWithAuth('/products/orders/'),
-  });
-};
 
 export const useCreateOrder = () => {
   return useMutation({
@@ -424,13 +421,43 @@ export const useCreateOrder = () => {
 };
 
 // GET /products/orders/{id}/ (products_orders_read)
-export const useOrder = (id: any) => {
+// export const useOrder = (id: any) => {
+//   return useQuery({
+//     queryKey: ['order', id],
+//     queryFn: () => fetchWithAuth(`/products/orders/${id}/`),
+//     enabled: !!id,
+//   });
+// };
+
+export const useOrders = () => {
   return useQuery({
-    queryKey: ['order', id],
-    queryFn: () => fetchWithAuth(`/products/orders/${id}/`),
-    enabled: !!id,
+    queryKey: ['orders'],
+    queryFn: async () => {
+      const token = getAuthToken();
+      const { data } = await api.get('/products/orders/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Fetched orders:', data);
+      return data.results;
+    },
   });
 };
+
+export const useOrder = (id:any) => {
+  return useQuery({
+    queryKey: ['order', id],
+    queryFn: async () => {
+      const token = getAuthToken();
+      const { data } = await api.get(`/products/orders/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Fetched oeder details:', data);
+      return data;
+    },
+  });
+};
+
+
 
 // PUT /products/orders/{id}/ (products_orders_update)
 export const useUpdateOrder = () => {
@@ -486,6 +513,20 @@ export const useCreatePayment = () => {
       });
       console.log("Payment processed:", data);
       return data;
+    },
+  });
+};
+
+export const useBrowsingHistory = () => {
+  return useQuery({
+    queryKey: ['browsing-history'],
+    queryFn: async () => {
+      const token = getAuthToken();
+      const { data } = await api.get('/products/products/browsing-history/', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Fetched subcategory products:', data);
+      return data?.data;
     },
   });
 };

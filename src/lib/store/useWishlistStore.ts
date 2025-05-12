@@ -33,7 +33,7 @@ const loadWishlist = (): WishlistItem[] => {
 interface WishlistStore {
     wishlist: WishlistItem[];
     fetchWishlist: () => Promise<void>;
-    addToWishlist: (productId: number, productVariationId: number) => Promise<void>;
+    addToWishlist: (userId: number, variation: any) => Promise<void>;
     removeFromWishlist: (itemId: number) => Promise<void>;
     clearWishlist: () => void;
 }
@@ -51,7 +51,7 @@ const useWishlistStore = create<WishlistStore>((set, get) => ({
                 return;
             }
 
-            const { data } = await api.get(`/wishlist/${wishlistPk}/items/`);
+            const { data } = await api.get(`/cart/wishlists/${wishlistPk}/items/`);
 
             set({ wishlist: data.results });
 
@@ -65,33 +65,37 @@ const useWishlistStore = create<WishlistStore>((set, get) => ({
     },
 
     /** Add item to wishlist */
-    addToWishlist: async (productId, productVariationId) => {
+    addToWishlist: async (userId: number, variation: { color: string; size: string; quantity: number }) => {
         try {
             let wishlistPk = Cookies.get("wishlist_id");
-
+    
             if (!wishlistPk) {
-                const { data } = await api.post("/wishlist/");
+                const { data } = await api.post("/cart/wishlists/", {
+                    user: userId,
+                    product_variation: variation
+                });
                 wishlistPk = data.id;
                 Cookies.set("wishlist_id", data.id);
             }
-
-            const { data } = await api.post(`/wishlist/${wishlistPk}/items/`, {
-                product_id: productId,
-                product_variation_id: productVariationId,
+    
+            const { data } = await api.post(`/cart/wishlists/${wishlistPk}/add-item/`, {
+                user: userId,
+                product_variation: variation,
             });
-
+    
             set((state) => {
                 const updatedWishlist = [...state.wishlist, data];
                 Cookies.set("wishlist", JSON.stringify(updatedWishlist), { expires: 7 });
                 return { wishlist: updatedWishlist };
             });
-
+    
             toast.success("Item added to wishlist");
         } catch (error) {
             console.error("Error adding to wishlist:", error);
             toast.error("Failed to add item to wishlist. Please try again.");
         }
     },
+    
 
     /** Remove item from wishlist */
     removeFromWishlist: async (itemId: number) => {
@@ -103,7 +107,7 @@ const useWishlistStore = create<WishlistStore>((set, get) => ({
                 return;
             }
 
-            await api.delete(`/wishlist/${wishlistPk}/items/${itemId}/`);
+            await api.delete(`/cart/wishlists/${wishlistPk}/items/${itemId}/`);
 
             set((state) => {
                 const updatedWishlist = state.wishlist.filter((item) => item.id !== itemId);
@@ -128,3 +132,4 @@ const useWishlistStore = create<WishlistStore>((set, get) => ({
 }));
 
 export default useWishlistStore;
+        

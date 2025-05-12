@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Home,
@@ -20,115 +20,100 @@ import { Button } from '../../../components/ui/button';
 import { formatCurrency } from '../../../lib/utils';
 import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
+import { useBrowsingHistory, useOrder, useOrders } from '../../../lib/api/product';
+// import { useOrders } from '../../../lib/api/order';
+import { useQuery } from '@tanstack/react-query';
+import api from '../../../lib/axios';
 
 
-interface Order {
-  id: string;
-  status: 'IN PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  date: string;
-  total: number;
-  products: number;
-}
+// const recentOrders: Order[] = [
+//   {
+//     id: '#95459761',
+//     status: 'IN PROGRESS',
+//     date: 'Dec 30, 2019 03:18',
+//     total: 1500,
+//     products: 3,
+//   },
+//   {
+//     id: '#71667167',
+//     status: 'COMPLETED',
+//     date: 'Feb 2, 2019 19:28',
+//     total: 80,
+//     products: 1,
+//   },
+//   {
+//     id: '#95214302',
+//     status: 'CANCELLED',
+//     date: 'Mar 20, 2019 23:14',
+//     total: 500,
+//     products: 3,
+//   },
+//   {
+//     id: '#71667167',
+//     status: 'COMPLETED',
+//     date: 'Feb 2, 2019 19:28',
+//     total: 850,
+//     products: 1,
+//   },
+//   {
+//     id: '#55746385',
+//     status: 'COMPLETED',
+//     date: 'Feb 2, 2019 19:28',
+//     total: 2300,
+//     products: 2,
+//   },
+//   {
+//     id: '#55746385',
+//     status: 'CANCELLED',
+//     date: 'Dec 30, 2019 07:52',
+//     total: 70,
+//     products: 1,
+//   },
+//   {
+//     id: '#67397743',
+//     status: 'COMPLETED',
+//     date: 'Dec 7, 2019 23:26',
+//     total: 520,
+//     products: 1,
+//   },
+// ];
 
-interface BrowsingHistoryItem {
-  id: string;
-  title: string;
-  image: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  isNew?: boolean;
-  isBestDeal?: boolean;
-}
-
-const recentOrders: Order[] = [
-  {
-    id: '#95459761',
-    status: 'IN PROGRESS',
-    date: 'Dec 30, 2019 03:18',
-    total: 1500,
-    products: 3,
-  },
-  {
-    id: '#71667167',
-    status: 'COMPLETED',
-    date: 'Feb 2, 2019 19:28',
-    total: 80,
-    products: 1,
-  },
-  {
-    id: '#95214302',
-    status: 'CANCELLED',
-    date: 'Mar 20, 2019 23:14',
-    total: 500,
-    products: 3,
-  },
-  {
-    id: '#71667167',
-    status: 'COMPLETED',
-    date: 'Feb 2, 2019 19:28',
-    total: 850,
-    products: 1,
-  },
-  {
-    id: '#55746385',
-    status: 'COMPLETED',
-    date: 'Feb 2, 2019 19:28',
-    total: 2300,
-    products: 2,
-  },
-  {
-    id: '#55746385',
-    status: 'CANCELLED',
-    date: 'Dec 30, 2019 07:52',
-    total: 70,
-    products: 1,
-  },
-  {
-    id: '#67397743',
-    status: 'COMPLETED',
-    date: 'Dec 7, 2019 23:26',
-    total: 520,
-    products: 1,
-  },
-];
-
-const browsingHistory: BrowsingHistoryItem[] = [
-  {
-    id: '1',
-    title: 'TOZO T10 True Wireless Earbud Bluetooth Headphones',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300',
-    price: 79.99,
-    rating: 4.5,
-    reviews: 735,
-    isNew: true,
-  },
-  {
-    id: '2',
-    title: 'Samsung Electronics Samsung Galaxy S23 5G',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300',
-    price: 849.99,
-    rating: 4.8,
-    reviews: 892,
-  },
-  {
-    id: '3',
-    title: 'HDMI Cable 18Gbps High Speed',
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300',
-    price: 29.99,
-    rating: 4.9,
-    reviews: 423,
-    isBestDeal: true,
-  },
-  {
-    id: '4',
-    title: 'Portable Working Machine, High-capacity Mode',
-    image: 'https://images.unsplash.com/photo-1505740106531-4243f3831c78?w=300',
-    price: 199.99,
-    rating: 4.7,
-    reviews: 156,
-  },
-];
+// const browsingHistory: BrowsingHistoryItem[] = [
+//   {
+//     id: '1',
+//     title: 'TOZO T10 True Wireless Earbud Bluetooth Headphones',
+//     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300',
+//     price: 79.99,
+//     rating: 4.5,
+//     reviews: 735,
+//     isNew: true,
+//   },
+//   {
+//     id: '2',
+//     title: 'Samsung Electronics Samsung Galaxy S23 5G',
+//     image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300',
+//     price: 849.99,
+//     rating: 4.8,
+//     reviews: 892,
+//   },
+//   {
+//     id: '3',
+//     title: 'HDMI Cable 18Gbps High Speed',
+//     image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300',
+//     price: 29.99,
+//     rating: 4.9,
+//     reviews: 423,
+//     isBestDeal: true,
+//   },
+//   {
+//     id: '4',
+//     title: 'Portable Working Machine, High-capacity Mode',
+//     image: 'https://images.unsplash.com/photo-1505740106531-4243f3831c78?w=300',
+//     price: 199.99,
+//     rating: 4.7,
+//     reviews: 156,
+//   },
+// ];
 
 // const user = {
 //   name: 'Kevin Gilbert',
@@ -154,23 +139,46 @@ const browsingHistory: BrowsingHistoryItem[] = [
 //   ],
 // };
 
+// Helper to color status badge
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'shipped':
+      return 'bg-blue-100 text-blue-800';
+    case 'delivered':
+      return 'bg-green-100 text-green-800';
+    case 'cancelled':
+      return 'bg-red-100 text-red-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
+};
+
+
 export function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, logout } = useAuthStore();
 
-  console.log('Dashboard:', { user });
-  
+  const { data: browsingHistory, isLoading, error } = useBrowsingHistory();
+  const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
+  console.log("Orders:", orders);
+  console.log("browsingHistory:", browsingHistory);
+  // Fetch browsing history
+  // const { data: browsingHistory, isLoading: historyLoading, error: historyError } = useQuery({
+  //   queryKey: ["browsing-history"],
+  //   queryFn: async () => {
+  //     const res = await api.get("/products/products/");
+  //     console.log("Browsing History:", res);
+  //     return res
+  //     ;
+  //   },
+  // });
 
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'IN PROGRESS':
-        return 'text-blue-600 bg-blue-50';
-      case 'COMPLETED':
-        return 'text-green-600 bg-green-50';
-      case 'CANCELLED':
-        return 'text-red-600 bg-red-50';
-    }
-  };
+  const recentOrders = orders
+    ?.sort((a: { createdAt: string | number | Date; }, b: { createdAt: string | number | Date; }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -193,7 +201,7 @@ export function Dashboard() {
               </div>
             </div> */}
             <div className="flex flex-col py-4">
-              <p className="text-2xl font-medium">Hello {user.name}</p>
+              <p className="text-2xl font-medium">Hello {user.username}</p>
               <p className="text-black/50 font-light text-sm max-w-md">From your account dashboard. you can easily check & view your Recent Orders, manage your Shipping and Billing Addresses and edit your Password and Account Details.</p>
             </div>
             <div className="grid gap-4">
@@ -208,8 +216,8 @@ export function Dashboard() {
                   <div className="space-y-4 p-4">
                     <div className="flex items-center gap-4 mb-2">
                       <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-lg ">
-                          {user.username}
+                        <span className="text-lg">
+                          {user.username.slice(0, 2)}
                         </span>
                       </div>
                       <div>
@@ -223,7 +231,7 @@ export function Dashboard() {
                     </div>
                     <div>
                       <span className="text-sm text-gray-500">Phone Number:</span>
-                      <span className="text-sm text-gray-500">{user}</span>
+                      <span className="text-sm text-gray-500">{user.id}</span>
                     </div>
                     <Button
                       variant="outline"
@@ -310,12 +318,12 @@ export function Dashboard() {
                     </div>
                   </div>
 
-                
+
                 </div>
               </div>
 
               {/* Payment Methods */}
-              <div className="bg-white  rounded-lg shadow-sm">
+              {/* <div className="bg-white  rounded-lg shadow-sm">
                 <div className="flex p-6 items-center justify-between">
                   <h3 className="font-semibold">PAYMENT OPTION</h3>
                   <Button
@@ -329,7 +337,7 @@ export function Dashboard() {
                 </div>
                 <div className="h-px bg-gray-200 w-full"></div>
                 <div className="grid md:grid-cols-2 gap-4 p-6 relative">
-                  {user.cards.map((card, index) => (
+                  {cards.map((card, index) => (
                     <div
                       key={index}
                       className={`p-4 rounded text-white ${card.type === 'visa' ? 'bg-[#1B6B93]' : 'bg-[#2B9348]'
@@ -375,19 +383,19 @@ export function Dashboard() {
                       size="sm"
                       className="bg-transparent font-light text-red-500"
                       onClick={() => { }}
-                      >
+                    >
                       <Delete className="h-4 w-4 mr-2" />
                       Delete Cards
-                      </Button>
+                    </Button>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Recent Orders */}
               <div className="bg-white font-light p-6 rounded-lg shadow-sm overflow-hidden">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-semibold">RECENT ORDER</h3>
-                  <a href="/orders">
+                  <a href="/user/orders">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -398,49 +406,56 @@ export function Dashboard() {
                     </Button>
                   </a>
                 </div>
+
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left border-b">
-                        <th className="pb-4 font-medium">ORDER ID</th>
-                        <th className="pb-4 font-medium">STATUS</th>
-                        <th className="pb-4 font-medium">DATE</th>
-                        <th className="pb-4 font-medium">TOTAL</th>
-                        <th className="pb-4 font-medium text-right">ACTION</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentOrders.map((order) => (
-                        <tr key={order.id} className="border-b last:border-0">
-                          <td className="py-4">{order.id}</td>
-                          <td className="py-4">
-                            <span
-                              className={`inline-block px-2 py-1 rounded text-sm ${getStatusColor(
-                                order.status
-                              )}`}
-                            >
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="py-4">{order.date}</td>
-                          <td className="py-4">
-                            {formatCurrency(order.total)} ({order.products}{' '}
-                            Products)
-                          </td>
-                          <td className="py-4 text-right">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-[#F86F03]"
-                            >
-                              View Details
-                              <ChevronRight className="h-4 w-4 ml-1" />
-                            </Button>
-                          </td>
+                  {ordersLoading ? (
+                    <p>Loading...</p>
+                  ) : ordersError ? (
+                    <p className="text-red-500">Failed to load recent orders.</p>
+                  ) : recentOrders?.length > 0 ? (
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left border-b">
+                          <th className="pb-4 font-medium">ORDER ID</th>
+                          <th className="pb-4 font-medium">STATUS</th>
+                          <th className="pb-4 font-medium">TOTAL</th>
+                          <th className="pb-4 font-medium text-right">ACTION</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {recentOrders.map((order: any) => (
+                          <tr key={order.id} className="border-b last:border-0">
+                            <td className="py-4">{order.id}</td>
+                            <td className="py-4">
+                              <span
+                                className={`inline-block px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}
+                              >
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="py-4">
+                              {formatCurrency(order.total_amount)} ({order.products?.length ?? 0} Products)
+                            </td>
+                            <td className="py-4 text-right">
+                              <Link to={`/user/orders/${order.id}`}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-[#F86F03]"
+                                >
+                                  View Details
+                                  <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                              </Link>
+                            </td>
+
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p>No recent orders found.</p>
+                  )}
                 </div>
               </div>
 
@@ -460,8 +475,8 @@ export function Dashboard() {
                     </Button>
                   </a>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {browsingHistory.map((item) => (
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {browsingHistory.map((item: any) => (
                     <div key={item.id} className="group relative">
                       <div className="relative">
                         <img
@@ -504,7 +519,7 @@ export function Dashboard() {
                       </div>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

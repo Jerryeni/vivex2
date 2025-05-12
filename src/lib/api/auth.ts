@@ -50,8 +50,12 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       try {
-        const user = data.data;
+        const user = data.data[0];
+        console.log('User:', user);
         const { access_token, refresh_token, is_vendor, username } = user;
+        console.log('Access Token:', access_token);
+        console.log('Access Token:', user.access_token);
+        Cookies.set('userId', user.id, { expires: 1 }); // Expires in 1 day
     
         if (!access_token || !refresh_token) throw new Error('Missing tokens');
     

@@ -6,12 +6,19 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated());
+  // const isAuthenticated = useAuthStore((state) => state.isAuthenticated); // Call it as a function
+  const hydrated = useAuthStore((state) => state.hydrated);
+
+  if (!hydrated) {
+    return null; // or a loader/spinner
+  }
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
 
+  const isAuthenticated = useAuthStore((state) => state.access_token);
+
   if (!isAuthenticated) {
-    return <Navigate to="/signin" state={{ from: location }} replace />;
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
   if (allowedRoles && user) {

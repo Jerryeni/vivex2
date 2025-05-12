@@ -10,6 +10,8 @@ export interface User {
 }
 
 export interface Product {
+  selling_price?: any;
+  rating: number;
   originalPrice: any;
   id: number;
   name: string;

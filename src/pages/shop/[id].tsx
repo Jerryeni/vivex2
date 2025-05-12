@@ -13,7 +13,7 @@ export const ProductDetails = () => {
   const { addToCart, updateCartItem, removeFromCart, fetchCart, cart } = useCartStore();
   const [activeTab, setActiveTab] = useState("description");
   const [selectedImage, setSelectedImage] = useState(0);
-
+console.log(product)
   if (isLoading) return <ProductSkeleton />;
   if (error || !product) return <div className="text-center text-red-500">Failed to load product</div>;
 
@@ -25,9 +25,9 @@ export const ProductDetails = () => {
 
   const cartItem = cart.find(
     (item) =>
-      item.data?.product?.id === product?.id &&
-      item.data?.product_variation?.id === availableVariation?.id
-  )?.data;
+      item.product?.id === product?.id &&
+      item?.product_variation?.id === availableVariation?.id
+  );
 
   const handleIncreaseQuantity = async () => {
     if (cartItem) {
@@ -60,13 +60,13 @@ export const ProductDetails = () => {
             <div>
               <div className="aspect-w-4 aspect-h-3 mb-4">
                 <img
-                  src={product.images?.[selectedImage]?.image_url || "https://via.placeholder.com/400"}
-                  alt={product.name}
+                  src={product.data.images?.[selectedImage]?.image_url || "https://via.placeholder.com/400"}
+                  alt={product.data.name}
                   className="w-full h-full object-cover rounded-lg"
                 />
               </div>
               <div className="grid grid-cols-5 gap-2">
-                {product.images?.map((image: any, index:any) => (
+                {product.data.images?.map((image: any, index:any) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -74,7 +74,7 @@ export const ProductDetails = () => {
                   >
                     <img
                       src={image.image_url || "https://via.placeholder.com/400"}
-                      alt={product.name}
+                      alt={product.data.name}
                       className="w-full h-full object-cover p-2"
                     />
                   </button>
@@ -87,32 +87,32 @@ export const ProductDetails = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${i < Math.floor(Number(product.rating)) ? "text-yellow-400 fill-orange-400" : "text-gray-300"}`}
+                      className={`h-4 w-4 ${i < Math.floor(Number(product.data.rating)) ? "text-yellow-400 fill-orange-400" : "text-gray-300"}`}
                     />
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-gray-600">
-                  {String(product.rating)} Star Rating ({String(product.reviews)} Reviews)
+                  {String(product.data.rating)} Star Rating ({String(product.data.reviews)} Reviews)
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">{product.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">{product.data.name}</h1>
               <div className="flex items-center mb-6 text-sm text-gray-600">
                 <span className="mx-4">|</span>
-                <span>Brand: <strong>{String(product.brand)}</strong></span>
+                <span>Brand: <strong>{String(product.data.brand)}</strong></span>
                 <span className="mx-4">|</span>
-                <span>Category: <strong>{String(product.category?.name || "N/A")}</strong></span>
+                <span>Category: <strong>{String(product.data.category?.name || "N/A")}</strong></span>
               </div>
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-xl font-bold text-secondary-100">
-                  ${Number(product.price).toFixed(2)}
+                  ${Number(product.data.price).toFixed(2)}
                 </span>
-                {product.originalPrice && (
+                {product.data.originalPrice && (
                   <>
                     <span className="text-xl text-gray-400 line-through">
-                      ${Number(product.originalPrice).toFixed(2)}
+                      ${Number(product.data.originalPrice).toFixed(2)}
                     </span>
                     <span className="px-2 py-1 text-sm text-white bg-yellow-500 rounded">
-                      {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                      {Math.round(((product.data.originalPrice - product.data.price) / product.data.originalPrice) * 100)}% OFF
                     </span>
                   </>
                 )}
