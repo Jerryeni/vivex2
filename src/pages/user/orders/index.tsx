@@ -4,110 +4,46 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { formatCurrency } from '../../../lib/utils';
 import { Button } from '../../../components/ui/button';
+import { useOrders } from '../../../lib/api/product';
 
-interface Order {
-  id: string;
-  status: 'IN PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  date: string;
-  total: number;
-  products: number;
-}
 
-const orders: Order[] = [
-  {
-    id: '95459761',
-    status: 'IN PROGRESS',
-    date: 'Dec 30, 2019 07:52',
-    total: 80,
-    products: 3,
-  },
-  {
-    id: '71667167',
-    status: 'COMPLETED',
-    date: 'Dec 7, 2019 23:26',
-    total: 70,
-    products: 4,
-  },
-  {
-    id: '95214302',
-    status: 'CANCELLED',
-    date: 'Dec 7, 2019 23:26',
-    total: 2300,
-    products: 2,
-  },
-  {
-    id: '71667167',
-    status: 'COMPLETED',
-    date: 'Feb 2, 2019 19:28',
-    total: 520,
-    products: 1,
-  },
-  {
-    id: '#ßß5746385',
-    status: 'COMPLETED',
-    date: 'Dec 30, 2019 07:52',
-    total: 350,
-    products: 2,
-  },
-  {
-    id: '#55746385',
-    status: 'CANCELLED',
-    date: 'Dec 4, 2019 21:42',
-    total: 220,
-    products: 7,
-  },
-  {
-    id: '#67397743',
-    status: 'COMPLETED',
-    date: 'Feb 2, 2019 19:28',
-    total: 80,
-    products: 1,
-  },
-  {
-    id: '#67397743',
-    status: 'COMPLETED',
-    date: 'Mar 20, 2019 23:14',
-    total: 500,
-    products: 1,
-  },
-  {
-    id: '#67397743',
-    status: 'COMPLETED',
-    date: 'Dec 4, 2019 21:42',
-    total: 1500,
-    products: 3,
-  },
-  {
-    id: '#67397743',
-    status: 'COMPLETED',
-    date: 'Dec 30, 2019 05:18',
-    total: 1500,
-    products: 3,
-  },
-  {
-    id: '#67397743',
-    status: 'CANCELLED',
-    date: 'Dec 30, 2019 07:52',
-    total: 80,
-    products: 1,
-  },
-];
 
 export function Orders() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10;
-  const totalPages = Math.ceil(orders.length / ordersPerPage);
+  const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
+  console.log("Orders:", orders);
 
-  const getStatusColor = (status: Order['status']) => {
-    switch (status) {
-      case 'IN PROGRESS':
-        return 'text-blue-600 bg-blue-50';
-      case 'COMPLETED':
-        return 'text-green-600 bg-green-50';
-      case 'CANCELLED':
-        return 'text-red-600 bg-red-50';
+  // const getStatusColor = (status: Order['status']) => {
+  //   switch (status) {
+  //     case 'IN PROGRESS':
+  //       return 'text-blue-600 bg-blue-50';
+  //     case 'COMPLETED':
+  //       return 'text-green-600 bg-green-50';
+  //     case 'CANCELLED':
+  //       return 'text-red-600 bg-red-50';
+  //   }
+  // };
+
+  // Helper to color status badge
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'shipped':
+        return 'bg-blue-100 text-blue-800';
+      case 'delivered':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const recentOrders = orders
+    ?.sort((a: { createdAt: string | number | Date; }, b: { createdAt: string | number | Date; }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+    .slice(0, 3);
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -127,82 +63,74 @@ export function Orders() {
                 </div>
               </div>
 
-              <div className="p-6">
-                <h1 className="text-lg font-semibold mb-6">ORDER HISTORY</h1>
+              {/* Recent Orders */}
+              <div className="bg-white font-light p-6 rounded-lg shadow-sm overflow-hidden">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-semibold">RECENT ORDER</h3>
+                  <a href="/user/orders">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[#F86F03]"
+                    >
+                      View All
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </a>
+                </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left border-b">
-                        <th className="pb-4 font-medium">ORDER ID</th>
-                        <th className="pb-4 font-medium">STATUS</th>
-                        <th className="pb-4 font-medium">DATE</th>
-                        <th className="pb-4 font-medium">TOTAL</th>
-                        <th className="pb-4 font-medium text-right">ACTION</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {orders.map((order) => (
-                        <tr key={order.id} className="border-b last:border-0">
-                          <td className="py-4">{order.id}</td>
-                          <td className="py-4">
-                            <span
-                              className={`inline-block px-2 py-1 rounded text-sm ${getStatusColor(
-                                order.status
-                              )}`}
-                            >
-                              {order.status}
-                            </span>
-                          </td>
-                          <td className="py-4">{order.date}</td>
-                          <td className="py-4">
-                            {formatCurrency(order.total)} ({order.products}{' '}
-                            Products)
-                          </td>
-                          <td className="py-4 text-right">
-                          <Link to={`/order/${order.id}`}>
-                              <Button variant="ghost" size="sm" className="text-[#F86F03]">
-                                View Details
-                                <ChevronRight className="h-4 w-4 ml-1" />
-                              </Button>
-                            </Link>
-                          </td>
+                  {ordersLoading ? (
+                    <p>Loading...</p>
+                  ) : ordersError ? (
+                    <p className="text-red-500">Failed to load recent orders.</p>
+                  ) : recentOrders?.length > 0 ? (
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left border-b">
+                          <th className="pb-4 font-medium">ORDER ID</th>
+                          <th className="pb-4 font-medium">STATUS</th>
+                          <th className="pb-4 font-medium">TOTAL</th>
+                          <th className="pb-4 font-medium text-right">ACTION</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {recentOrders.map((order: any) => (
+                          <tr key={order.id} className="border-b last:border-0">
+                            <td className="py-4">{order.id}</td>
+                            <td className="py-4">
+                              <span
+                                className={`inline-block px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}
+                              >
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="py-4">
+                              {formatCurrency(order.total_amount)} ({order.products?.length ?? 0} Products)
+                            </td>
+                            <td className="py-4 text-right">
+                              <Link to={`/user/orders/${order.id}`}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-[#F86F03]"
+                                >
+                                  View Details
+                                  <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                              </Link>
+                            </td>
 
-                <div className="flex justify-center items-center gap-2 mt-8">
-                  <button
-                    className="w-8 h-8 flex items-center justify-center border rounded-full disabled:opacity-50"
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      className={`w-8 h-8 flex items-center justify-center border rounded-full ${
-                        currentPage === page
-                          ? 'bg-[#F86F03] text-white'
-                          : 'hover:bg-gray-50'
-                      }`}
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                  <button
-                    className="w-8 h-8 flex items-center justify-center border rounded-full disabled:opacity-50"
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p>No recent orders found.</p>
+                  )}
                 </div>
               </div>
+
             </div>
           </div>
         </div>

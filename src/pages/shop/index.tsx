@@ -82,7 +82,7 @@ export const ProductsPage = () => {
 
 
   const breadcrumbItems = [
-    { label: 'Shop', href: '/shop' },
+    { label: 'products', href: '/products' },
     { label: selectedCategory || 'All Products' },
   ];
 

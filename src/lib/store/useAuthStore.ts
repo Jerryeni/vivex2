@@ -4,8 +4,8 @@ import Cookies from 'js-cookie';
 
 interface AuthStore {
   user: any;
-  access_token: string | null;
-  refresh_token: string | null;
+  access_token: any | null;
+  refresh_token: any | null;
   hydrated: boolean;
   setAuth: (user: any, access_token: string, refresh_token: string) => void;
   logout: () => void;

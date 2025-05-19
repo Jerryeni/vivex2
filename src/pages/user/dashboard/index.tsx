@@ -1,143 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Home,
-  ShoppingCart,
-  Heart,
-  CreditCard,
-  Clock,
-  Settings,
-  LogOut,
   ChevronRight,
-  Star,
   Edit,
   Plane,
   ReceiptText,
   PackageOpen,
-  Delete,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency } from '../../../lib/utils';
 import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
-import { useBrowsingHistory, useOrder, useOrders } from '../../../lib/api/product';
-// import { useOrders } from '../../../lib/api/order';
-import { useQuery } from '@tanstack/react-query';
-import api from '../../../lib/axios';
+import { useBrowsingHistory, useOrders } from '../../../lib/api/product';
 
 
-// const recentOrders: Order[] = [
-//   {
-//     id: '#95459761',
-//     status: 'IN PROGRESS',
-//     date: 'Dec 30, 2019 03:18',
-//     total: 1500,
-//     products: 3,
-//   },
-//   {
-//     id: '#71667167',
-//     status: 'COMPLETED',
-//     date: 'Feb 2, 2019 19:28',
-//     total: 80,
-//     products: 1,
-//   },
-//   {
-//     id: '#95214302',
-//     status: 'CANCELLED',
-//     date: 'Mar 20, 2019 23:14',
-//     total: 500,
-//     products: 3,
-//   },
-//   {
-//     id: '#71667167',
-//     status: 'COMPLETED',
-//     date: 'Feb 2, 2019 19:28',
-//     total: 850,
-//     products: 1,
-//   },
-//   {
-//     id: '#55746385',
-//     status: 'COMPLETED',
-//     date: 'Feb 2, 2019 19:28',
-//     total: 2300,
-//     products: 2,
-//   },
-//   {
-//     id: '#55746385',
-//     status: 'CANCELLED',
-//     date: 'Dec 30, 2019 07:52',
-//     total: 70,
-//     products: 1,
-//   },
-//   {
-//     id: '#67397743',
-//     status: 'COMPLETED',
-//     date: 'Dec 7, 2019 23:26',
-//     total: 520,
-//     products: 1,
-//   },
-// ];
-
-// const browsingHistory: BrowsingHistoryItem[] = [
-//   {
-//     id: '1',
-//     title: 'TOZO T10 True Wireless Earbud Bluetooth Headphones',
-//     image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300',
-//     price: 79.99,
-//     rating: 4.5,
-//     reviews: 735,
-//     isNew: true,
-//   },
-//   {
-//     id: '2',
-//     title: 'Samsung Electronics Samsung Galaxy S23 5G',
-//     image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300',
-//     price: 849.99,
-//     rating: 4.8,
-//     reviews: 892,
-//   },
-//   {
-//     id: '3',
-//     title: 'HDMI Cable 18Gbps High Speed',
-//     image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300',
-//     price: 29.99,
-//     rating: 4.9,
-//     reviews: 423,
-//     isBestDeal: true,
-//   },
-//   {
-//     id: '4',
-//     title: 'Portable Working Machine, High-capacity Mode',
-//     image: 'https://images.unsplash.com/photo-1505740106531-4243f3831c78?w=300',
-//     price: 199.99,
-//     rating: 4.7,
-//     reviews: 156,
-//   },
-// ];
-
-// const user = {
-//   name: 'Kevin Gilbert',
-//   email: 'kevin.gilbert@gmail.com',
-//   phone: '+1-202-555-0104',
-//   address: 'East Town East Word No 54, Road No. 03, Sector DOHS, Plot No. 50, Dhaka-1205, Bangladesh',
-//   totalOrders: 154,
-//   pendingOrders: 5,
-//   completedOrders: 149,
-//   cards: [
-//     {
-//       type: 'visa',
-//       number: '•••• •••• •••• 3814',
-//       holder: 'Kevin Gilbert',
-//       balance: 95400.00,
-//     },
-//     {
-//       type: 'mastercard',
-//       number: '•••• •••• •••• 1761',
-//       holder: 'Kevin Gilbert',
-//       balance: 87583.00,
-//     },
-//   ],
-// };
 
 // Helper to color status badge
 const getStatusColor = (status: string) => {
@@ -157,28 +33,25 @@ const getStatusColor = (status: string) => {
 
 
 export function Dashboard() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, logout } = useAuthStore();
 
   const { data: browsingHistory, isLoading, error } = useBrowsingHistory();
   const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
   console.log("Orders:", orders);
   console.log("browsingHistory:", browsingHistory);
-  // Fetch browsing history
-  // const { data: browsingHistory, isLoading: historyLoading, error: historyError } = useQuery({
-  //   queryKey: ["browsing-history"],
-  //   queryFn: async () => {
-  //     const res = await api.get("/products/products/");
-  //     console.log("Browsing History:", res);
-  //     return res
-  //     ;
-  //   },
-  // });
+
 
   const recentOrders = orders
     ?.sort((a: { createdAt: string | number | Date; }, b: { createdAt: string | number | Date; }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
     .slice(0, 3);
+
+  const totalOrders = orders?.length || 0;
+  const pendingOrders = orders?.filter((order: { status: string; }) => order?.status === 'pending')?.length || 0;
+  const completedOrders = orders?.filter((order: { status: string; }) => order?.status === 'completed')?.length || 0;
+
+  // console.log("Order statuses:", orders.map((o: any) => o.status));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -189,17 +62,7 @@ export function Dashboard() {
 
           {/* Main Content */}
           <div className="flex-1">
-            {/* <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                <span className="text-xl font-semibold">
-                  {user.name[0]}
-                </span>
-              </div>
-              <div>
-                <h2 className="font-semibold">{user.name}</h2>
-                <p className="text-sm text-gray-500">{user.email}</p>
-              </div>
-            </div> */}
+
             <div className="flex flex-col py-4">
               <p className="text-2xl font-medium">Hello {user.username}</p>
               <p className="text-black/50 font-light text-sm max-w-md">From your account dashboard. you can easily check & view your Recent Orders, manage your Shipping and Billing Addresses and edit your Password and Account Details.</p>
@@ -283,7 +146,7 @@ export function Dashboard() {
                     <div className="flex items-center gap-2 justify-start">
                       <Plane className="h-12 w-12 text-[#F86F03] bg-white " />
                       <div className="flex flex-col">
-                        <h3 className="text-lg font-semibold">{user.totalOrders}</h3>
+                        <h3 className="text-lg font-semibold">{totalOrders}</h3>
                         <span className="text-gray-600 rounded text-sm">
                           Total Orders
                         </span>
@@ -296,7 +159,7 @@ export function Dashboard() {
                     <div className="flex items-center gap-2 justify-start">
                       <ReceiptText className="h-12 w-12 text-[#F86F03] bg-white " />
                       <div className="flex flex-col">
-                        <h3 className="text-lg font-semibold">{user.pendingOrders}</h3>
+                        <h3 className="text-lg font-semibold">{pendingOrders}</h3>
                         <span className="text-gray-600 rounded text-sm">
                           Pending Orders
                         </span>
@@ -309,7 +172,7 @@ export function Dashboard() {
                     <div className="flex items-center gap-2 justify-start">
                       <PackageOpen className="h-12 w-12 text-[#F86F03] bg-white " />
                       <div className="flex flex-col">
-                        <h3 className="text-lg font-semibold">{user.totalOrders}</h3>
+                        <h3 className="text-lg font-semibold">{completedOrders}</h3>
                         <span className="text-gray-600 rounded text-sm">
                           Completed Orders
                         </span>

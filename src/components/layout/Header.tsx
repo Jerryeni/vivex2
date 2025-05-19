@@ -1,6 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, ChevronDown, Twitter, Facebook, Youtube, Instagram, User, Heart, Menu, X, Eye } from 'lucide-react';
+import {
+  ShoppingCart,
+  ChevronDown,
+  Twitter,
+  Facebook,
+  Youtube,
+  Instagram,
+  User,
+  Heart,
+  Menu,
+  X,
+} from 'lucide-react';
 import Logo from '../../assets/icons/Logo.png';
 import { Search } from '../ui/search';
 import useCartStore from '../../lib/store/useCartStore';
@@ -12,7 +23,10 @@ interface UserProps {
   avatar: string;
 }
 
-const Dropdown: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => {
+const Dropdown: React.FC<{ children: React.ReactNode; className?: string }> = ({
+  children,
+  className = '',
+}) => {
   return (
     <div className={`absolute top-full right-0 mt-1 bg-white rounded-md shadow-lg z-50 ${className}`}>
       {children}
@@ -25,8 +39,26 @@ export const Header: React.FC = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user, logout } = useAuthStore();
   const { cart } = useCartStore();
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
-  console.log('Header:', { user, cart });
+  // Handle outside click to close user menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   return (
     <header className="bg-[#005792] text-white">
@@ -58,7 +90,7 @@ export const Header: React.FC = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/cart" className='relative'>
+            <Link to="/cart" className="relative">
               <ShoppingCart className="h-6 w-6" />
               {cart.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
@@ -66,9 +98,11 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </Link>
-            <Link to="/wishlist"><Heart className="h-6 w-6" /></Link>
+            <Link  to="/user/wishlist">
+              <Heart className="h-6 w-6" />
+            </Link>
 
-            <div className="relative" onMouseLeave={() => setShowUserMenu(false)}>
+            <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu((prev) => !prev)}
                 className="focus:outline-none flex items-center space-x-2"
@@ -87,15 +121,22 @@ export const Header: React.FC = () => {
               </button>
 
               {showUserMenu && (
-                <Dropdown className="w-48" >
-                  <div className="py-2" onClick={() => setShowUserMenu(false)}>
+                <Dropdown className="w-48">
+                  <div className="py-2">
                     {user ? (
                       <>
-                        <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Link
+                          to="/user"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
                           Profile
                         </Link>
                         <button
-                          onClick={logout}
+                          onClick={() => {
+                            logout();
+                            setShowUserMenu(false);
+                          }}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Logout
@@ -103,10 +144,18 @@ export const Header: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Link to="/sign-in" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Link
+                          to="/sign-in"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
                           Login
                         </Link>
-                        <Link to="/sign-up" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                        <Link
+                          to="/sign-up"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
                           Sign Up
                         </Link>
                       </>
@@ -120,7 +169,11 @@ export const Header: React.FC = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 bg-white transition-transform transform ${isMenuOpen ? 'translate-y-0' : '-translate-y-full'} md:hidden z-50`}>
+      <div
+        className={`fixed inset-0 bg-white transition-transform transform ${
+          isMenuOpen ? 'translate-y-0' : '-translate-y-full'
+        } md:hidden z-50`}
+      >
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
             <span className="text-lg font-bold">Menu</span>
@@ -129,9 +182,15 @@ export const Header: React.FC = () => {
             </button>
           </div>
           <div className="space-y-4">
-            <Link to="/" className="block py-2 text-gray-700 hover:bg-gray-100">Home</Link>
-            <Link to="/cart" className="block py-2 text-gray-700 hover:bg-gray-100">Cart</Link>
-            <Link to="/wishlist" className="block py-2 text-gray-700 hover:bg-gray-100">Wishlist</Link>
+            <Link to="/" className="block py-2 text-gray-700 hover:bg-gray-100">
+              Home
+            </Link>
+            <Link to="/cart" className="block py-2 text-gray-700 hover:bg-gray-100">
+              Cart
+            </Link>
+            <Link to="/user/wishlist" className="block py-2 text-gray-700 hover:bg-gray-100">
+              Wishlist
+            </Link>
 
             {user ? (
               <div className="border-t pt-4">
@@ -141,12 +200,21 @@ export const Header: React.FC = () => {
                   </div>
                   <span className="text-sm font-bold">{user.username}</span>
                 </div>
-                <button onClick={logout} className="mt-2 block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                <button
+                  onClick={logout}
+                  className="mt-2 block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Logout
+                </button>
               </div>
             ) : (
               <div className="border-t pt-4">
-                <Link to="/login" className="block py-2 text-gray-700 hover:bg-gray-100">Login</Link>
-                <Link to="/register" className="block py-2 text-gray-700 hover:bg-gray-100">Sign Up</Link>
+                <Link to="/login" className="block py-2 text-gray-700 hover:bg-gray-100">
+                  Login
+                </Link>
+                <Link to="/register" className="block py-2 text-gray-700 hover:bg-gray-100">
+                  Sign Up
+                </Link>
               </div>
             )}
           </div>

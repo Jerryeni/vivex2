@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { Info } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Breadcrumb } from '../../../components/Breadcrumb';
+import axios from 'axios';
 
 export const TrackOrder = () => {
   const [orderId, setOrderId] = useState('');
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -12,9 +17,33 @@ export const TrackOrder = () => {
     { label: 'Track Order' }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle order tracking logic
+    setError('');
+
+    if (!orderId || !email) {
+      setError('Please provide both Order ID and Billing Email.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await axios.get(`/api/orders/track`, {
+        params: { orderId, email },
+      });
+
+      if (response.data?.success) {
+        // Assuming order exists, redirect
+        navigate(`/track-order/details/${orderId}`);
+      } else {
+        setError('No matching order found. Please check your credentials.');
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,8 +54,8 @@ export const TrackOrder = () => {
         <div className="mt-8 max-w-2xl mx-auto">
           <h1 className="text-2xl font-bold mb-2">Track Order</h1>
           <p className="text-gray-600 mb-8">
-            To track your order please enter your order ID in the input field below and press the "Track Order"
-            button. this was given to you on your receipt and in the confirmation email you should have received.
+            To track your order please enter your order ID and billing email below. This was sent to you in your
+            receipt and confirmation email.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -58,17 +87,19 @@ export const TrackOrder = () => {
               </div>
             </div>
 
-
             <div className="flex items-start space-x-2 text-sm text-gray-500">
               <Info className="h-5 w-5 flex-shrink-0" />
-              <p>Order ID that we emailed to your in your email address.</p>
+              <p>Order ID that we emailed to you in your receipt.</p>
             </div>
+
+            {error && <p className="text-red-600 text-sm">{error}</p>}
 
             <button
               type="submit"
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
+              disabled={loading}
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50"
             >
-              TRACK ORDER →
+              {loading ? 'Checking...' : 'TRACK ORDER →'}
             </button>
           </form>
         </div>

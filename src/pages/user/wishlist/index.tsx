@@ -1,65 +1,31 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
 import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { formatCurrency } from '../../../lib/utils';
 import { Button } from '../../../components/ui/button';
-
-interface WishlistItem {
-  id: string;
-  title: string;
-  image: string;
-  price: number;
-  originalPrice?: number;
-  stock: 'IN STOCK' | 'OUT OF STOCK';
-}
-
-const wishlistItems: WishlistItem[] = [
-  {
-    id: '1',
-    title: 'Bose Sport Earbuds - Wireless Earphones, Bluetooth In Ear Headphones for Workout and Running',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300',
-    price: 99.99,
-    originalPrice: 129.99,
-    stock: 'IN STOCK',
-  },
-  {
-    id: '2',
-    title: 'Simple Mobile 5G LTE Galaxy 12 Mini 512GB Gaming Phone',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300',
-    price: 2300.00,
-    stock: 'IN STOCK',
-  },
-  {
-    id: '3',
-    title: 'Portable Working Machine, 1TB capacity Model HNMM-GM',
-    image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=300',
-    price: 75.00,
-    stock: 'IN STOCK',
-  },
-  {
-    id: '4',
-    title: 'TOZO T6 True Wireless Earbuds Bluetooth Headphones Touch Control with Wireless Charging Case IPX8 Waterproof Stereo',
-    image: 'https://images.unsplash.com/photo-1505740106531-4243f3831c78?w=300',
-    price: 250.00,
-    originalPrice: 299.99,
-    stock: 'OUT OF STOCK',
-  },
-  {
-    id: '5',
-    title: 'Wyze Cam Pan v2 1080p Pan/Tilt/Zoom Wi-Fi Indoor Smart Home Camera with Color Night Vision, 2-Way Audio',
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300',
-    price: 1499.99,
-    stock: 'IN STOCK',
-  },
-];
+import useWishlistStore from '../../../lib/store/useWishlistStore';
+import useCartStore from '../../../lib/store/useCartStore';
+import toast from 'react-hot-toast';
 
 export function Wishlist() {
-  const [items, setItems] = useState(wishlistItems);
+  const { wishlist, fetchWishlist, removeFromWishlist } = useWishlistStore();
+  const { addToCart } = useCartStore();
 
-  const removeItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
+  useEffect(() => {
+    fetchWishlist();
+  }, [fetchWishlist]);
+
+  const handleRemove = (itemId: number) => {
+    removeFromWishlist(itemId);
   };
+
+  const handleAddToCart = (itemId: number, productId: number, variationId: number) => {
+    addToCart(productId, variationId, 1);
+    toast.success("Product added to cart.");
+  };
+
+  console.log(wishlist[0]?.product.images[0].image_url);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,102 +34,98 @@ export function Wishlist() {
           <DashboardSidebar />
 
           <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm">
+            <div className="bg-white rounded-lg shadow">
               <div className="p-6 border-b">
                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <Link to="/" className="hover:text-gray-700">Home</Link>
+                  <Link to="/" className="hover:underline">Home</Link>
                   <span>/</span>
-                  <span className="text-gray-900">Wishlist</span>
+                  <span className="text-gray-900 font-medium">Wishlist</span>
                 </div>
               </div>
 
               <div className="p-6">
-                <h1 className="text-lg font-semibold mb-6">WISHLIST</h1>
+                <h1 className="text-xl font-semibold mb-6">Your Wishlist</h1>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left border-b">
-                        <th className="pb-4 font-medium">PRODUCTS</th>
-                        <th className="pb-4 font-medium">PRICE</th>
-                        <th className="pb-4 font-medium">STOCK STATUS</th>
-                        <th className="pb-4 font-medium text-center">ACTIONS</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item) => (
-                        <tr key={item.id} className="border-b last:border-0">
-                          <td className="py-4">
-                            <div className="flex items-center gap-4">
-                              <img
-                                src={item.image}
-                                alt={item.title}
-                                className="w-16 h-16 object-cover rounded"
-                              />
-                              <div className="flex-1">
-                                <h3 className="font-medium line-clamp-2">
-                                  {item.title}
-                                </h3>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4">
-                            <div className="flex flex-col">
-                              <span className="font-semibold">
-                                {formatCurrency(item.price)}
-                              </span>
-                              {item.originalPrice && (
-                                <span className="text-sm text-gray-500 line-through">
-                                  {formatCurrency(item.originalPrice)}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="py-4">
-                            <span
-                              className={`inline-block px-2 py-1 rounded text-sm ${
-                                item.stock === 'IN STOCK'
-                                  ? 'text-green-600 bg-green-50'
-                                  : 'text-red-600 bg-red-50'
-                              }`}
-                            >
-                              {item.stock}
-                            </span>
-                          </td>
-                          <td className="py-4">
-                            <div className="flex items-center justify-center gap-2">
-                              <Button
-                                className={item.stock === 'OUT_OF_STOCK' ? 'opacity-50 cursor-not-allowed' : ''}
-                                disabled={item.stock === 'OUT_OF_STOCK'}
-                              >
-                                ADD TO CARD
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="text-red-600 hover:text-red-700"
-                                onClick={() => removeItem(item.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </td>
+                {wishlist.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left border-b font-medium">
+                          <th className="pb-3">Product</th>
+                          <th className="pb-3">Price</th>
+                          <th className="pb-3">Stock</th>
+                          <th className="pb-3 text-center">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {wishlist.map((item) => (
+                          <tr key={item.id} className="border-b last:border-0">
+                            <td className="py-4">
+                              <div className="flex items-center gap-4">
+                                <img
+                                  src={item.product?.images[0].image_url || `https://via.placeholder.com/64?text=${item.product.name[0]}`}
+                                  alt={item.product.name}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                                <div>
+                                  <h3 className="font-semibold line-clamp-1">{item.product.name}</h3>
+                                  <p className="text-gray-500 text-xs">
+                                    Size: {item.product_variation.size} | Color: {item.product_variation.color}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
 
-                {items.length === 0 && (
+                            <td className="py-4">
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {formatCurrency(item.product.discount_price || item.product.price)}
+                                </span>
+                                {item.product.discount_price && (
+                                  <span className="text-gray-400 text-xs line-through">
+                                    {formatCurrency(item.product.price)}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            <td className="py-4">
+                              <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                                In Stock
+                              </span>
+                            </td>
+
+                            <td className="py-4">
+                              <div className="flex justify-center gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleAddToCart(
+                                    item.id,
+                                    item.product.id,
+                                    item.product_variation.id
+                                  )}
+                                >
+                                  Add to Cart
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => handleRemove(item.id)}
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
                   <div className="text-center py-12">
-                    <p className="text-gray-500">Your wishlist is empty.</p>
-                    <Button
-                      className="mt-4"
-                      onClick={() => {
-                        // Navigate to products page
-                      }}
-                    >
-                      Continue Shopping
+                    <p className="text-gray-500">Your wishlist is currently empty.</p>
+                    <Button className="mt-4">
+                      <Link to="/products">Browse Products</Link>
                     </Button>
                   </div>
                 )}

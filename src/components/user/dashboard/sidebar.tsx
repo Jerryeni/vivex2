@@ -12,12 +12,13 @@ import {
   X,
 } from 'lucide-react';
 import { Button } from '../../ui/button';
+import { useAuthStore } from '../../../lib/store/useAuthStore';
 
 const navItems = [
   { to: '/user', label: 'Dashboard', icon: Home },
   { to: '/user/orders', label: 'Order History', icon: ShoppingCart },
   { to: '/user/wishlist', label: 'Wishlist', icon: Heart },
-  { to: '/user/cards', label: 'Cards & Address', icon: CreditCard },
+  // { to: '/user/cards', label: 'Cards & Address', icon: CreditCard },
   { to: '/user/history', label: 'Browsing History', icon: Clock },
   { to: '/user/settings', label: 'Settings', icon: Settings },
 ];
@@ -25,6 +26,7 @@ const navItems = [
 export function DashboardSidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuthStore();  
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
@@ -72,7 +74,7 @@ export function DashboardSidebar() {
                 <span>{label}</span>
               </Link>
             ))}
-            <button className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md w-full">
+            <button onClick={logout} className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-md w-full">
               <LogOut className="h-5 w-5" />
               <span>Log out</span>
             </button>

@@ -35,6 +35,8 @@ interface ResetPasswordData {
 interface UpdateUserData {
   name?: string;
   email?: string;
+  phone?: string;
+  avatar?: File | string;
   currentPassword?: string;
   newPassword?: string;
 }
@@ -59,9 +61,9 @@ export const useLogin = () => {
     
         if (!access_token || !refresh_token) throw new Error('Missing tokens');
     
-        setAuth(user, access_token[0], refresh_token);
+        setAuth(user, access_token, refresh_token);
         console.log('User:', user); 
-        console.log('Access Token:', access_token[0]);
+        console.log('Access Token:', access_token);
         console.log('Refresh Token:', refresh_token);
         const route = is_vendor ? '/admin' : '/user';
         navigate(route);
@@ -168,16 +170,51 @@ export const useResendVerification = () => {
   });
 };
 
+// export const useUpdateUser = () => {
+//   const setAuth = useAuthStore((state: { setAuth: any; }) => state.setAuth);
+
+//   return useMutation({
+//     mutationFn: async (data: UpdateUserData) => {
+//       const { data: response } = await api.put<AuthResponse>(`/accounts/user/{id}/`, data);
+//       return response;
+//     },
+//     onSuccess: ({ data }) => {
+//       setAuth(data);
+//     },
+//   });
+// };
 export const useUpdateUser = () => {
-  const setAuth = useAuthStore((state: { setAuth: any; }) => state.setAuth);
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const user = useAuthStore((state) => state.user);
+  const access_token = useAuthStore((state) => state.access_token);
+  const refresh_token = useAuthStore((state) => state.refresh_token);
 
   return useMutation({
-    mutationFn: async (data: UpdateUserData) => {
-      const { data: response } = await api.put<AuthResponse>(`/accounts/user/{id}/`, data);
+    mutationFn: async (updatedData: UpdateUserData) => {
+      if (!user?.id) throw new Error('User ID not found');
+
+      let payload: any = updatedData;
+      const isMultipart = updatedData.avatar instanceof File;
+
+      if (isMultipart) {
+        payload = new FormData();
+        Object.entries(updatedData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            payload.append(key, value);
+          }
+        });
+      }
+
+      const config = isMultipart ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
+      const { data: response } = await api.put(`/accounts/user/${user.id}/`, payload, config);
       return response;
     },
     onSuccess: ({ data }) => {
-      setAuth(data);
+      toast.success('Profile updated successfully!');
+      setAuth(data, access_token, refresh_token); // ✅ Pass all 3 arguments
+    },
+    onError: () => {
+      toast.error('Failed to update user profile.');
     },
   });
 };

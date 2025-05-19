@@ -6,6 +6,8 @@ import { Product } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useCategories, useFeaturedProducts } from '../../lib/api/product';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { ProductSkeleton } from '../ui/ProductSkeleton';
+import { ProductCard } from '../ui/ProductCard';
 
 export const FeaturedProducts: React.FC = () => {
   const { dispatch } = useCart();
@@ -76,65 +78,75 @@ export const FeaturedProducts: React.FC = () => {
           </Link>
         </div>
 
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(9)].map((_, i) => (
+            <ProductSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+
         <div className="flex w-full gap-2 overflow-x-auto">
           <div className="col-span-3 grid grid-cols-2 sm:grid-cols-2 w-full lg:grid-cols-4 gap-4">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-white border w-full rounded shadow-sm overflow-hidden relative"
-                  onMouseEnter={() => setHoveredProduct(product.id)}
-                  onMouseLeave={() => setHoveredProduct(null)}
-                >
-                  {product.is_hot && (
-                    <div className="bg-[#2DA5F3] text-white text-xs px-2 py-1 absolute top-2 right-2">
-                      HOT
-                    </div>
-                  )}
-                  <div className="relative">
-                    <img
-                      src={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
-                      alt={product.name}
-                      className="w-full h-32 object-contain p-1"
-                    />
-                    {hoveredProduct === product.id && (
-                      <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center gap-2">
-                        <button className="p-2 bg-orange-500 text-white rounded-full hover:bg-gray-100 transition-colors">
-                          <Heart className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => addToCart(product)}
-                          className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                          <ShoppingCart className="h-5 w-5" />
-                        </button>
-                        <button className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors">
-                          <Eye className="h-5 w-5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                // <div
+                //   key={product.id}
+                //   className="bg-white border w-full rounded shadow-sm overflow-hidden relative"
+                //   onMouseEnter={() => setHoveredProduct(product.id)}
+                //   onMouseLeave={() => setHoveredProduct(null)}
+                // >
+                //   {product.is_hot && (
+                //     <div className="bg-[#2DA5F3] text-white text-xs px-2 py-1 absolute top-2 right-2">
+                //       HOT
+                //     </div>
+                //   )}
+                //   <div className="relative">
+                //     <img
+                //       src={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+                //       alt={product.name}
+                //       className="w-full h-32 object-contain p-1"
+                //     />
+                //     {hoveredProduct === product.id && (
+                //       <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center gap-2">
+                //         <button className="p-2 bg-orange-500 text-white rounded-full hover:bg-gray-100 transition-colors">
+                //           <Heart className="h-5 w-5" />
+                //         </button>
+                //         <button
+                //           onClick={() => addToCart(product)}
+                //           className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
+                //         >
+                //           <ShoppingCart className="h-5 w-5" />
+                //         </button>
+                //         <button className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors">
+                //           <Eye className="h-5 w-5" />
+                //         </button>
+                //       </div>
+                //     )}
+                //   </div>
 
-                  <div className="p-4">
-                    <div className="flex items-center mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${i < product.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
-                        />
-                      ))}
-                      <span className="text-xs text-gray-500 ml-2">({product.reviews})</span>
-                    </div>
-                    <h3 className="text-sm font-medium mb-2">{product.name}</h3>
-                    <span className="text-[#2DA5F3] font-normal">${product.price}</span>
-                  </div>
-                </div>
+                //   <div className="p-4">
+                //     <div className="flex items-center mb-2">
+                //       {[...Array(5)].map((_, i) => (
+                //         <Star
+                //           key={i}
+                //           className={`h-4 w-4 ${i < product.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                //         />
+                //       ))}
+                //       <span className="text-xs text-gray-500 ml-2">({product.reviews})</span>
+                //     </div>
+                //     <h3 className="text-sm font-medium mb-2">{product.name}</h3>
+                //     <span className="text-[#2DA5F3] font-normal">${product.price}</span>
+                //   </div>
+                // </div>
+                <ProductCard key={product.id} product={product} />
               ))
             ) : (
               <p className="text-gray-500 col-span-4">No products found for this category.</p>
             )}
           </div>
         </div>
+      )}
       </div>
     </section>
   );

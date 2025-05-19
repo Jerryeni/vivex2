@@ -374,19 +374,49 @@ export const useDeleteSubcategory = () => {
 };
 
 // ✅ Fetch Products Under a Subcategory
-export const useSubcategoryProducts = () => {
+// export const useSubcategoryProducts = () => {
+//   return useQuery({
+//     queryKey: ['subcategory-products'],
+//     queryFn: async () => {
+//       const token = getAuthToken();
+//       const { data } = await api.get('/products/subcategories/products/', {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       console.log('Fetched subcategory products:', data);
+//       return data.results;
+//     },
+//   });
+// };
+export const useSubcategoriesByCategory = (categoryId: string | null) => {
   return useQuery({
-    queryKey: ['subcategory-products'],
+    queryKey: ['subcategories', categoryId],
     queryFn: async () => {
+      if (!categoryId) return [];
       const token = getAuthToken();
-      const { data } = await api.get('/products/subcategories/products/', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log('Fetched subcategory products:', data);
-      return data.results;
+      const { data } = await api.get(`/products/categories/${categoryId}/subcategories/`);
+      return data.data || data;
     },
+    enabled: !!categoryId,
   });
 };
+
+
+export const useSubcategoryProducts = (subcategoryId: string) => {
+  return useQuery({
+    queryKey: ['subcategory-products', subcategoryId],
+    queryFn: async () => {
+      if (!subcategoryId) return [];
+      const token = getAuthToken();
+      const { data } = await api.get('/products/subcategories/products', {
+        // headers: { Authorization: `Bearer ${token}` },
+        params: { subcategory_id: subcategoryId },
+      });
+      console.log('Fetched subcategory products:', data);
+      return data.data.slice(0, 4); // Limit to 4 items here
+    },
+    enabled: !!subcategoryId,
+  });
+}; 
 
 
 export const useCreateOrder = () => {

@@ -70,7 +70,7 @@ const useCartStore = create<CartStore>((set, get) => {
         console.log("Cart fetched:", data.results);
       } catch (error) {
         console.error("Error fetching cart items:", error);
-        toast.error("Failed to fetch cart items.");
+        // toast.error("Failed to fetch cart items.");
       }
     },
 
