@@ -36,50 +36,55 @@ interface CartStore {
 }
 
 const useCartStore = create<CartStore>((set, get) => {
-  const store: CartStore = {
+  const createCart = async (): Promise<string | undefined> => {
+    try {
+      const { data } = await api.post("/cart/cart/");
+
+      const id = data.data.id;
+      Cookies.set("cart_id", id, { expires: 30 });
+      console.log("Cart created with ID:", id);
+      set({ cartPk: id });
+      return id;
+    } catch (error) {
+      console.error("Error creating cart:", error);
+      toast.error("Failed to create cart");
+    }
+  };
+
+  const getValidCartPk = async (): Promise<string | undefined> => {
+    let cartPk = get().cartPk || Cookies.get("cart_id");
+    if (!cartPk) {
+      cartPk = await get().createCart(); // <- force create if none exists
+    }
+    return cartPk;
+  };
+
+  return {
     cart: [],
     cartPk: Cookies.get("cart_id") || null,
 
-    createCart: async () => {
-      try {
-        const { data } = await api.post("/cart/cart/");
-        const id = data.id;
-        Cookies.set("cart_id", id, { expires: 30 });
-        set({ cartPk: id });
-        return id;
-      } catch (error) {
-        console.error("Error creating cart:", error);
-        toast.error("Failed to create cart");
-      }
-    },
+    createCart,
 
     fetchCart: async () => {
       try {
-        let cartPk = get().cartPk || Cookies.get("cart_id");
-
-        if (!cartPk) {
-          cartPk = await get().createCart();
-          set({ cartPk });
-        }
+        const cartPk = await getValidCartPk();
+        if (!cartPk) return;
 
         const { data } = await api.get(`/cart/cart/${cartPk}/items/`);
         set({ cart: data.results });
-
-        // Optionally store in cookie
         Cookies.set("cart", JSON.stringify(data.results), { expires: 30 });
         console.log("Cart fetched:", data.results);
       } catch (error) {
         console.error("Error fetching cart items:", error);
-        // toast.error("Failed to fetch cart items.");
       }
     },
 
     addToCart: async (productId, productVariationId, quantity = 1) => {
       try {
-        let cartPk = get().cartPk || Cookies.get("cart_id");
+        const cartPk = await getValidCartPk();
         if (!cartPk) {
-          cartPk = await get().createCart();
-          set({ cartPk });
+          toast.error("Could not create cart");
+          return;
         }
 
         const { data } = await api.post(`/cart/cart/${cartPk}/items/`, {
@@ -103,8 +108,7 @@ const useCartStore = create<CartStore>((set, get) => {
 
     updateCartItem: async (itemId, quantity) => {
       try {
-        const cartPk = get().cartPk || Cookies.get("cart_id");
-
+        const cartPk = await getValidCartPk();
         if (!cartPk) {
           toast.error("No cart found. Please try again.");
           return;
@@ -129,8 +133,7 @@ const useCartStore = create<CartStore>((set, get) => {
 
     removeFromCart: async (itemId) => {
       try {
-        const cartPk = get().cartPk || Cookies.get("cart_id");
-
+        const cartPk = await getValidCartPk();
         if (!cartPk) {
           toast.error("No cart found. Please try again.");
           return;
@@ -157,13 +160,10 @@ const useCartStore = create<CartStore>((set, get) => {
       Cookies.remove("cart_id");
       toast.success("Cart cleared");
     },
-
   };
-
-  // Immediately fetch cart when store initializes
-  store.fetchCart();
-
-  return store;
 });
+
+// Optional: automatically fetch cart on store init
+useCartStore.getState().fetchCart();
 
 export default useCartStore;

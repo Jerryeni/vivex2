@@ -9,7 +9,7 @@ export const PromotionalBanners: React.FC = () => {
           <span className="text-blue-500 text-sm">INTRODUCING</span>
           <h2 className="text-2xl font-bold mt-2 mb-4">New Apple<br />Homepod Mini</h2>
           <p className="text-gray-600 mb-6">Jam-packed with innovation,<br />HomePod mini delivers unexpectedly.</p>
-          <Link to="/shop" className="inline-block bg-orange-500 text-white px-6 py-2 rounded">
+          <Link to="/products" className="inline-block bg-orange-500 text-white px-6 py-2 rounded">
             SHOP NOW →
           </Link>
         </div>
@@ -25,7 +25,7 @@ export const PromotionalBanners: React.FC = () => {
           <span className="text-yellow-400 text-sm">INTRODUCING NEW</span>
           <h2 className="text-2xl font-bold mt-2 mb-4">Xiaomi Mi 11 Ultra<br />12GB+256GB</h2>
           <p className="text-gray-400 mb-6">*Data provided by internal<br />laboratories. Industry measurment.</p>
-          <Link to="/shop" className="inline-block bg-orange-500 text-white px-6 py-2 rounded">
+          <Link to="/products" className="inline-block bg-orange-500 text-white px-6 py-2 rounded">
             SHOP NOW →
           </Link>
         </div>

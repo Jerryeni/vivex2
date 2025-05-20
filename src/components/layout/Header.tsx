@@ -16,6 +16,7 @@ import Logo from '../../assets/icons/Logo.png';
 import { Search } from '../ui/search';
 import useCartStore from '../../lib/store/useCartStore';
 import { useAuthStore } from '../../lib/store/useAuthStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface UserProps {
   username: string;
@@ -41,7 +42,6 @@ export const Header: React.FC = () => {
   const { cart } = useCartStore();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
-  // Handle outside click to close user menu
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -60,8 +60,12 @@ export const Header: React.FC = () => {
     };
   }, [showUserMenu]);
 
+  const handleMobileLinkClick = () => {
+    setTimeout(() => setIsMenuOpen(false), 100);
+  };
+
   return (
-    <header className="bg-[#005792] text-white">
+    <header className="bg-[#005792] text-white relative z-50">
       <div className="py-4 border-b border-gray-400/50">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
           <span className="text-sm">Welcome to Vivian's online E-Commerce store.</span>
@@ -98,7 +102,7 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </Link>
-            <Link  to="/user/wishlist">
+            <Link to="/user/wishlist">
               <Heart className="h-6 w-6" />
             </Link>
 
@@ -168,58 +172,77 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <div
-        className={`fixed inset-0 bg-white transition-transform transform ${
-          isMenuOpen ? 'translate-y-0' : '-translate-y-full'
-        } md:hidden z-50`}
-      >
-        <div className="p-4">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-lg font-bold">Menu</span>
-            <button onClick={() => setIsMenuOpen(false)}>
-              <X className="h-6 w-6 text-gray-700" />
-            </button>
-          </div>
-          <div className="space-y-4">
-            <Link to="/" className="block py-2 text-gray-700 hover:bg-gray-100">
-              Home
-            </Link>
-            <Link to="/cart" className="block py-2 text-gray-700 hover:bg-gray-100">
-              Cart
-            </Link>
-            <Link to="/user/wishlist" className="block py-2 text-gray-700 hover:bg-gray-100">
-              Wishlist
-            </Link>
+      {/* Mobile Menu with animation */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
+              onClick={() => setIsMenuOpen(false)}
+            />
 
-            {user ? (
-              <div className="border-t pt-4">
-                <div className="flex items-center space-x-2">
-                  <div className="h-8 w-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold uppercase">
-                    {user.username.slice(0, 2)}
-                  </div>
-                  <span className="text-sm font-bold">{user.username}</span>
+            <motion.div
+              initial={{ y: '-100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '-100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.3 }}
+              className="fixed top-0 left-0 right-0 bg-white z-50 md:hidden shadow-lg"
+            >
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-lg font-bold text-gray-800">Menu</span>
+                  <button onClick={() => setIsMenuOpen(false)}>
+                    <X className="h-6 w-6 text-gray-700" />
+                  </button>
                 </div>
-                <button
-                  onClick={logout}
-                  className="mt-2 block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Logout
-                </button>
+                <div className="space-y-4">
+                  <Link to="/" className="block py-2 text-gray-700 hover:bg-gray-100" onClick={handleMobileLinkClick}>
+                    Home
+                  </Link>
+                  <Link to="/cart" className="block py-2 text-gray-700 hover:bg-gray-100" onClick={handleMobileLinkClick}>
+                    Cart
+                  </Link>
+                  <Link to="/user/wishlist" className="block py-2 text-gray-700 hover:bg-gray-100" onClick={handleMobileLinkClick}>
+                    Wishlist
+                  </Link>
+
+                  {user ? (
+                    <div className="border-t pt-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="h-8 w-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-semibold uppercase">
+                          {user.username.slice(0, 2)}
+                        </div>
+                        <span className="text-sm font-bold">{user.username}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsMenuOpen(false);
+                        }}
+                        className="mt-2 block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-t pt-4">
+                      <Link to="/sign-in" className="block py-2 text-gray-700 hover:bg-gray-100" onClick={handleMobileLinkClick}>
+                        Login
+                      </Link>
+                      <Link to="/sign-up" className="block py-2 text-gray-700 hover:bg-gray-100" onClick={handleMobileLinkClick}>
+                        Sign Up
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
-            ) : (
-              <div className="border-t pt-4">
-                <Link to="/login" className="block py-2 text-gray-700 hover:bg-gray-100">
-                  Login
-                </Link>
-                <Link to="/register" className="block py-2 text-gray-700 hover:bg-gray-100">
-                  Sign Up
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

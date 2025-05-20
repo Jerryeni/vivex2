@@ -5,7 +5,7 @@ export const ServiceFeatures: React.FC = () => {
   const features = [
     {
       icon: <Truck className="h-6 w-6" />,
-      title: "FFasted Delivery",
+      title: "Fasted Delivery",
       description: "Delivery in 24/H"
     },
     {

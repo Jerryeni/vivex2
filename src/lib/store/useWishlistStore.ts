@@ -30,6 +30,7 @@ interface AddToWishlistParams {
 interface WishlistStore {
   wishlist: WishlistItem[];
   fetchWishlist: () => Promise<void>;
+  isInWishlist: (productId: number) => boolean;
   addToWishlist: (params: AddToWishlistParams) => Promise<void>;
   removeFromWishlist: (itemId: number) => Promise<void>;
   clearWishlist: () => void;
@@ -37,21 +38,25 @@ interface WishlistStore {
 
 const useWishlistStore = create<WishlistStore>((set, get) => ({
   wishlist: [],
+  isInWishlist: (productId: number) =>
+    get().wishlist.some((item) => item?.product?.id === productId),
 
-  /** Fetch the wishlist items */
+  /** Fetch the wishlist items   */
   fetchWishlist: async () => {
     try {
       const wishlistPk = Cookies.get("wishlist_id");
-
+  
       if (!wishlistPk) {
         toast.error("No wishlist found. Please create a wishlist first.");
         return;
       }
-
+  
       const { data } = await api.get(`/cart/wishlist/${wishlistPk}/wishlist-items/`);
-      set({ wishlist: data.results });
-      console.log(data);
-      Cookies.set("wishlist", JSON.stringify(data.results), { expires: 7 });
+  
+      const filteredItems = data.results.filter((item: any) => item?.product && item?.product_variation);
+      set({ wishlist: filteredItems });
+  
+      Cookies.set("wishlist", JSON.stringify(filteredItems), { expires: 7 });
     } catch (error) {
       console.error("Error fetching wishlist items:", error);
       toast.error("Failed to fetch wishlist items.");

@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 const breadcrumbItems = [
     { label: "Home", href: "/" },
-    { label: "Pages", href: "/pages" },
+    { label: "products", href: "/products" },
     { label: "Cart" },
 ];
 
@@ -43,25 +43,25 @@ const CartPage: React.FC = () => {
         <div className="font-sans bg-white min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <Breadcrumb items={breadcrumbItems} />
-                <main className="container mx-auto p-4 flex gap-4 w-full">
-                    <div className="bg-white border rounded  w-2/3">
+                <main className="container mx-auto p-4x flex flex-col md:flex gap-4 w-full">
+                    <div className="bg-white border rounded w-full md:w-2/3 overflow-x-auto">
                         <h2 className="text-2xl font-semibold p-6 mb-4">Shopping Card</h2>
 
                         {/* Table Header */}
-                        <div className="flex justify-between text-sm py-4 px-6 font-semibold mb-2 w-full bg-gray-100">
-                            <span className='w-1/2'>PRODUCTS</span>
-                            <div className="flex w-1/2 justify-start">
-                                <span className='w-full'>PRICE</span>
-                                <span className='w-full'>QUANTITY</span>
-                                <span className='w-full'>SUB-TOTAL</span>
+                        <div className="flex justify-between text-sm py-4 px-6 font-semibold mb-2 w-full bg-gray-100 overflow-x-auto">
+                            <span className='w-full md:w-1/2 px-1 text-xs md:text-base'>PRODUCTS</span>
+                            <div className="flex w-full md:w-1/2 justify-start text-xs md:text-base">
+                                <span className='w-full px-1'>PRICE</span>
+                                <span className='w-full px-1'>QUANTITY</span>
+                                <span className='w-full px-1'>SUB-TOTAL</span>
                             </div>
 
                         </div>
 
                         {cart.length === 0 ? (
-                            <p className="text-gray-500">Your cart is empty.</p>
+                            <p className="text-gray-500 px-4">Your cart is empty.</p>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-4 overflow-x-auto">
                                 {cart.map((item) => (
                                     <div key={item.id} className="flex justify-between px-4 w-full">
                                         <div className="flex items-center w-1/2">
@@ -110,7 +110,7 @@ const CartPage: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col w-1/3 bg-white border rounded p-6">
+                    <div className="flex flex-col w-full md:w-1/3 bg-white border rounded p-6">
                         <div className="mt-6 border-t pt-4">
                             <div className="flex justify-between mb-2">
                                 <span>Subtotal:</span>

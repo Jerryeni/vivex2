@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export const SpecialProducts: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
@@ -48,31 +49,34 @@ export const SpecialProducts: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/3">
-            <img 
-              src="https://images.unsplash.com/photo-1610348725531-843dff563e2c" 
-              alt="Fresh Vegetables" 
+            <img
+              src="https://images.unsplash.com/photo-1610348725531-843dff563e2c"
+              alt="Fresh Vegetables"
               className="w-full h-auto rounded-lg"
             />
           </div>
-          
+
           <div className="md:w-1/3 text-center my-8 md:my-0">
-          <p className="text-gray-600 mb-6">Best deals</p>
+            <p className="text-gray-600 mb-6">Best deals</p>
 
             <h2 className="text-2xl font-bold mb-4">Our Special Products Deal of the Month</h2>
             <div className="flex justify-center space-x-4 mb-6">
               <div className="flex justify-center space-x-6 mb-8">
-              {timerComponents}
-           </div>
+                {timerComponents}
+              </div>
             </div>
-            <button className="bg-[#679BFF] text-white px-6 py-2 rounded-full hover:bg-blue-700">
-              Shop Now
-            </button>
+            <Link to="/products">
+              <button className="bg-[#679BFF] text-white px-6 py-2 rounded-full hover:bg-blue-700">
+                Shop Now
+              </button>
+            </Link>
+
           </div>
 
           <div className="md:w-1/3">
-            <img 
-              src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da" 
-              alt="Fresh Fruits" 
+            <img
+              src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da"
+              alt="Fresh Fruits"
               className="w-full h-auto rounded-lg"
             />
           </div>
