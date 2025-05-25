@@ -73,7 +73,7 @@ export const FeaturedProducts: React.FC = () => {
               Browse All Product →
             </Link> */}
           </div>
-          <Link to="/products" className="absolute left-1/2 top-2 md:block text-orange-500 h-fit text-xs w-fit hover:underline">
+          <Link to="/products" className="absolute right-2 md:-top-4 md:block text-orange-500 h-fit text-xs w-fit hover:underline">
             Browse All Product →
           </Link>
         </div>

@@ -7,8 +7,9 @@ import useCartStore from '../../lib/store/useCartStore';
 import useWishlistStore from '../../lib/store/useWishlistStore';
 import { Product } from '../../types';
 import toast from 'react-hot-toast';
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 import { ModalAuth } from '../ui/LoginSignupModal';
+import { formatCurrency } from '../../lib/utils';
 
 export const BestDeals: React.FC = () => {
   const { addToCart } = useCartStore();
@@ -42,9 +43,7 @@ export const BestDeals: React.FC = () => {
     }
 
     const availableVariation = product.variations?.find(v => v.quantity > 0);
-    if (!availableVariation) {
-      return toast.error("No available variation for this product.");
-    }
+    if (!availableVariation) return toast.error("No available variation for this product.");
 
     await addToWishlist({
       userId: Number(userId),
@@ -62,7 +61,7 @@ export const BestDeals: React.FC = () => {
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold">Best Deals</h2>
           <div className="bg-yellow-100 px-3 py-1 rounded text-sm">
-            Deals ends in 16d : 21h : 57m : 23s
+            Deals ends in <span className='bg-yellow/50 p-2'>16d : 21h : 57m : 23s</span>
           </div>
         </div>
         <Link to="/products" className="text-blue-500 hover:underline">
@@ -70,11 +69,12 @@ export const BestDeals: React.FC = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4x">
+        {/* First product special display */}
         {products.length > 0 && (
           <div className="lg:col-span-1">
             <div
-              className="bg-transparent overflow-hidden border"
+              className="bg-transparent overflow-hidden border px-2"
               onMouseEnter={() => setHoveredProduct(products[0].id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
@@ -96,7 +96,7 @@ export const BestDeals: React.FC = () => {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-4 w-4 ${i < (products[0].rating || 0) ? 'text-yellow-400 fill-orange-400' : 'text-gray-300'}`}
+                        className={`h-4 w-4 ${i < (products[0].average_rating || 0) ? 'text-yellow-400 fill-orange-400' : 'text-gray-300'}`}
                       />
                     ))}
                   </div>
@@ -104,9 +104,12 @@ export const BestDeals: React.FC = () => {
                     ({products[0].reviews?.toLocaleString()})
                   </span>
                 </div>
-                <h3 className="text-sm font-medium mb-2">{products[0].name}</h3>
+                <Link to={`/products/${products[0].id}`}>
+                  <h3 className="text-sm font-medium mb-2">{products[0].name}</h3>
+
+                </Link>
                 <div className="mb-2">
-                  <span className="text-[#2DA5F3] font-bold">${products[0].selling_price}</span>
+                  <span className="text-[#2DA5F3] font-bold">{formatCurrency(products[0].selling_price)}</span>
                   {products[0].price > products[0].selling_price && (
                     <span className="text-sm text-gray-400 line-through ml-2">
                       ${products[0].price}
@@ -117,22 +120,22 @@ export const BestDeals: React.FC = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAddToWishlist(products[0])}
-                      className={`p-2 ${isInWishlist(products[0].id) ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 text-white'} rounded-full`}
+                      className={`p-2 ${isInWishlist(products[0].id) ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500/20 text-white'} `}
                       disabled={isInWishlist(products[0].id)}
                     >
-                      <Heart className="h-5 w-5" />
+                      <Heart className="h-5 w-5 text-black/70" />
                     </button>
                     <button
                       onClick={() => handleAddToCart(products[0])}
-                      className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
+                      className="bg-orange-500 text-white px-4 py-2 roundedx hover:bg-orange-600 transition-colors"
                     >
                       ADD TO CART
                     </button>
-                    <Link to={`/products/${products[0].id}`} className="block relative">
-                    <button className="p-2 hover:bg-gray-100 rounded">
-                      <Eye className="h-5 w-5" />
-                    </button>
-                  </Link>
+                    <Link to={`/products/${products[0].id}`}>
+                      <button className="p-2 bg-orange-500/20 hover:bg-gray-100">
+                        <Eye className="h-6 w-5" />
+                      </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -140,11 +143,12 @@ export const BestDeals: React.FC = () => {
           </div>
         )}
 
-        <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {products.slice(1).map(product => (
+        {/* Remaining products */}
+        <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4x">
+          {products.slice(1).map((product) => (
             <div
               key={product.id}
-              className="bg-white overflow-hidden border h-full"
+              className="bg-white overflow-hidden border h-[250px]x"
               onMouseEnter={() => setHoveredProduct(product.id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
@@ -152,7 +156,7 @@ export const BestDeals: React.FC = () => {
                 <img
                   src={product.images[0]?.image_url || 'https://via.placeholder.com/150'}
                   alt={product.name}
-                  className="w-full h-32 object-contain"
+                  className="w-full h-28 object-contain"
                 />
                 {hoveredProduct === product.id && (
                   <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center gap-2">
@@ -169,16 +173,18 @@ export const BestDeals: React.FC = () => {
                     >
                       <ShoppingCart className="h-5 w-5" />
                     </button>
-                    <Link to={`/products/${products[0].id}`} className="block relative">
-                    <button className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors">
-                      <Eye className="h-5 w-5" />
-                    </button>
-                  </Link>
+                    <Link to={`/products/${product.id}`}>
+                      <button className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors">
+                        <Eye className="h-5 w-5" />
+                      </button>
+                    </Link>
                   </div>
                 )}
               </div>
               <div className="p-4">
-                <h3 className="text-xs font-normal mb-2">{product.name}</h3>
+                <Link to={`/products/${product.id}`}>
+                  <h3 className="text-xs font-normal mb-2">{product.name}</h3>
+                </Link>
                 <span className="text-[#2DA5F3] font-normal text-sm">${product.selling_price}</span>
                 {product.price > product.selling_price && (
                   <span className="text-gray-400 text-sm line-through ml-2">${product.price}</span>

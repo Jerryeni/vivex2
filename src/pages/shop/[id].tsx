@@ -10,8 +10,8 @@ import { useAuthStore } from "../../lib/store/useAuthStore";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { ModalAuth } from "../../components/ui/LoginSignupModal";
-const userId = Cookies.get("userId");
 
+const userId = Cookies.get("userId");
 
 export const ProductDetails = () => {
   const { id } = useParams();
@@ -22,41 +22,35 @@ export const ProductDetails = () => {
   const { wishlist, addToWishlist, removeFromWishlist, fetchWishlist } = useWishlistStore();
   const { user } = useAuthStore();
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [activeTab, setActiveTab] = useState("description");
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedVariation, setSelectedVariation] = useState(null);
+  const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [liked, setLiked] = useState(false);
+
   const isLoggedIn = !!Cookies.get("access_token");
 
-  // Wait for product data to load
+  useEffect(() => {
+    if (product?.data?.variations?.length && !selectedVariation) {
+      const available = product.data.variations.filter((v: any) => v.quantity > 0);
+      setSelectedVariation(available[0] || null);
+    }
+  }, [product?.data]);
+
+  useEffect(() => {
+    if (!product?.data || !selectedVariation) return;
+    const isInWishlist = wishlist.some(
+      (item) =>
+        item.product?.id === product.data.id &&
+        item.product_variation?.id === selectedVariation.id
+    );
+    setLiked(isInWishlist);
+  }, [wishlist, product?.data, selectedVariation]);
+
   if (isLoading) return <ProductSkeleton />;
   if (error || !product?.data) return <div className="text-center text-red-500">Failed to load product</div>;
 
   const productData = product.data;
-
   const availableVariations = productData.variations?.filter((v: any) => v.quantity > 0) || [];
-  const defaultVariation = selectedVariation || availableVariations[0] || null;
-
-  // useEffect(() => {
-  //   if (availableVariations.length && !selectedVariation) {
-  //     setSelectedVariation(availableVariations[0]);
-  //   }
-  // }, [availableVariations]);
-
-  // useEffect(() => {
-  //   if (!productData || !defaultVariation) return;
-
-  //   const isInWishlist = wishlist.some(
-  //     (item) =>
-  //       item.product?.id === productData.id &&
-  //       item.product_variation?.id === defaultVariation.id
-  //   );
-  //   setLiked(isInWishlist);
-  // }, [wishlist, productData.id, defaultVariation?.id]);
-
-  const relatedProducts = allProducts.results
-    ?.filter((p: any) => p.category?.id === productData.category?.id && p.id !== productData.id)
-    .slice(0, 4) || [];
+  const defaultVariation = selectedVariation;
 
   const cartItem = cart.find(
     (item) =>
@@ -105,17 +99,20 @@ export const ProductDetails = () => {
     if (wishlistItem) {
       await removeFromWishlist(wishlistItem.id);
     } else {
-      await addToWishlist(user.id, {
-        color: defaultVariation.color,
-        size: defaultVariation.size,
+      await addToWishlist({
+        userId: user?.id,
+        productId: productData.id,
+        productVariationId: defaultVariation.id,
         quantity: 1,
-        product: productData.id,
-        product_variation: defaultVariation.id,
       });
     }
 
     await fetchWishlist();
   };
+
+  const relatedProducts = allProducts.results
+    ?.filter((p: any) => p.category?.id === productData.category?.id && p.id !== productData.id)
+    .slice(0, 4) || [];
 
   return (
     <>
@@ -229,6 +226,7 @@ export const ProductDetails = () => {
           </div>
         </div>
       </div>
+
       {showLoginModal && <ModalAuth onClose={() => setShowLoginModal(false)} />}
     </>
   );

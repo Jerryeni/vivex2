@@ -2,6 +2,7 @@ import React from 'react';
 import { FlashCard } from '../ui/flash-card';
 import { useBestSellerProducts, useFlashSaleProducts, useNewArrivals, useTopRatedProducts } from '../../lib/api/product';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { Link } from 'react-router-dom';
 
 export const FlashSale: React.FC = () => {
   // Fetch all required data separately
@@ -17,32 +18,38 @@ export const FlashSale: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      
+
       {/* FLASH SALE SECTION */}
       <div className="flex flex-col gap-4">
         <p className="text-xl uppercase">flash sale today</p>
         {flashSaleData?.data.slice(0, 3).map((product: { id: React.Key | null | undefined; images: { image_url: any; }[]; name: string; price: string | number; }) => (
-          <FlashCard
-            key={product.id}
-            imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
-            imageAlt={product.name}
-            title={product.name}
-            price={product.price}
-          />
+
+          <Link to={`/products/${product.id}`} key={product.id}>
+            <FlashCard
+              key={product.id}
+              imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+              imageAlt={product.name}
+              title={product.name}
+              price={product.price}
+            />
+          </Link>
         ))}
+        
       </div>
 
       {/* BEST SELLERS SECTION */}
       <div className="flex flex-col gap-4">
         <p className="text-xl uppercase">best sellers</p>
         {bestSellersData?.data.slice(0, 3).map((product: { id: React.Key | null | undefined; images: { image_url: any; }[]; name: string; price: string | number; }) => (
-          <FlashCard
-            key={product.id}
-            imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
-            imageAlt={product.name}
-            title={product.name}
-            price={product.price}
-          />
+          <Link to={`/products/${product.id}`} key={product.id}>
+            <FlashCard
+              key={product.id}
+              imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+              imageAlt={product.name}
+              title={product.name}
+              price={product.price}
+            />
+          </Link>
         ))}
       </div>
 
@@ -50,13 +57,16 @@ export const FlashSale: React.FC = () => {
       <div className="flex flex-col gap-4">
         <p className="text-xl uppercase">top rated</p>
         {topRatedData?.data.slice(0, 3).map((product: { id: React.Key | null | undefined; images: { image_url: any; }[]; name: string; price: string | number; }) => (
-          <FlashCard
-            key={product.id}
-            imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
-            imageAlt={product.name}
-            title={product.name}
-            price={product.price}
-          />
+          <Link to={`/products/${product.id}`} key={product.id}>
+            <FlashCard
+              key={product.id}
+              imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+              imageAlt={product.name}
+              title={product.name}
+              price={product.price}
+            />
+          </Link>
+
         ))}
       </div>
 
@@ -64,13 +74,16 @@ export const FlashSale: React.FC = () => {
       <div className="flex flex-col gap-4">
         <p className="text-xl uppercase">new arrivals</p>
         {newArrivalsData?.data.slice(0, 3).map((product: { id: React.Key | null | undefined; images: { image_url: any; }[]; name: string; price: string | number; }) => (
-          <FlashCard
-            key={product.id}
-            imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
-            imageAlt={product.name}
-            title={product.name}
-            price={product.price}
-          />
+          <Link to={`/products/${product.id}`} key={product.id}>
+            <FlashCard
+              key={product.id}
+              imageSrc={product.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+              imageAlt={product.name}
+              title={product.name}
+              price={product.price}
+            />
+          </Link>
+
         ))}
       </div>
 

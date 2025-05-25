@@ -406,7 +406,7 @@ export const useSubcategoryProducts = (subcategoryId: string) => {
     queryKey: ['subcategory-products', subcategoryId],
     queryFn: async () => {
       if (!subcategoryId) return [];
-      const token = getAuthToken();
+      // const token = getAuthToken();
       const { data } = await api.get('/products/subcategories/products', {
         // headers: { Authorization: `Bearer ${token}` },
         params: { subcategory_id: subcategoryId },
@@ -517,8 +517,57 @@ export const usePatchOrder = () => {
   });
 };
 
+// export const useTrackOrder = (orderTrackingId: string) => {
+//   return useQuery({
+//     queryKey: ['track-order', orderTrackingId],
+//     queryFn: async () => {
+//       const { data } = await api.get(`/products/orders/treack-order`, {
+//         params: {
+//           'order-tracking-id': orderTrackingId,
+//         },
+//       });
+//       return data.data;
+//     },
+//     enabled: !!orderTrackingId, // only run if ID is present
+//   });
+// };
+// export const useOrderTracking = (id: string) => {
+//   return useQuery({
+//     queryKey: ['order-tracking', id],
+//     queryFn: async () => {
+//       const token = getAuthToken();
+//       const { data } = await api.get(`/products/orders/treack-order`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       console.log('Fetched oeder details:', data);
+//       return data;
+//     },
+//   });
+// };
+
+
 
 // Shipping Address Hook
+
+const fetchOrderTracking = async (orderTrackingId: string) => {
+  const token = getAuthToken();
+
+  const { data } = await api.get('/products/orders/track-order/', {
+    params: { 'order-tracking-id': orderTrackingId }, // ✅ as query param
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+};
+
+export const useTrackOrder = () => {
+  return useMutation({
+    mutationFn: (orderTrackingId: string) => fetchOrderTracking(orderTrackingId),
+  });
+};
+
 export const useCreateShippingAddress = () => {
   return useMutation({
     mutationFn: async (shippingData: Record<string, any>) => {

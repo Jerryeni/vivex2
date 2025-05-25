@@ -1,19 +1,26 @@
 import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency } from '../../../lib/utils';
 import { RatingModal } from '../../../components/ui/rating-modal';
 import { ArrowLeft } from 'lucide-react';
-import { useOrder } from '../../../lib/api/product';
-import { useState } from 'react';
+import { useOrder, useTrackOrder } from '../../../lib/api/product';
 import { Breadcrumb } from '../../../components/ui/Breadcrumb';
 
 export function OrderDetails() {
   const { id } = useParams<{ id: string }>();
   const [showRatingModal, setShowRatingModal] = useState(false);
-  const { data: orderDetails, isLoading } = useOrder(id!);
+  const { data: orderDetails, isLoading: isOrderLoading } = useOrder(id!);
+  const { mutate: trackOrder, data: trackingData, isPending, isError } = useTrackOrder();
 
-  if (isLoading) {
+  useEffect(() => {
+    if (orderDetails?.track_id) {
+      trackOrder(orderDetails.track_id);
+    }
+  }, [orderDetails, trackOrder]);
+
+  if (isOrderLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg font-medium">Loading Order Details...</div>
@@ -29,41 +36,28 @@ export function OrderDetails() {
     );
   }
 
-  // Simulated order tracking and activity log
-  const statusSteps = ['Order Placed', 'Packaging', 'On The Road', 'Delivered'];
-  const currentStatusStep = 3;
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg font-medium">Fetching Tracking Info...</div>
+      </div>
+    );
+  }
 
-  const activityLog = [
-    {
-      message: 'Your order has been delivered. Thank you for shopping at V-store!',
-      timestamp: '2021-01-23T19:32:00Z',
-    },
-    {
-      message: 'Our delivery man (John Wick) has picked up your order for delivery.',
-      timestamp: '2021-01-23T14:00:00Z',
-    },
-    {
-      message: 'Your order has reached the last mile hub.',
-      timestamp: '2021-01-22T08:00:00Z',
-    },
-    {
-      message: 'Your order is on the way to the last mile hub.',
-      timestamp: '2021-01-21T05:32:00Z',
-    },
-    {
-      message: 'Your order is successfully verified.',
-      timestamp: '2021-01-20T19:32:00Z',
-    },
-    {
-      message: 'Your order has been confirmed.',
-      timestamp: '2021-01-19T14:01:00Z',
-    },
-  ];
+  if (isError || !trackingData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg font-medium text-red-500">Failed to fetch tracking data.</div>
+      </div>
+    );
+  }
 
   const breadcrumbItems = [
-    { label: 'order', href: '/order' },
-    { label: 'order details' },
+    { label: 'Order', href: '/order' },
+    { label: 'Order Details' },
   ];
+
+  const currentStep = trackingData.tracking_steps.findIndex((step: { completed: boolean }) => !step.completed);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -86,10 +80,7 @@ export function OrderDetails() {
                     </Link>
                     <h1 className="text-lg font-semibold">ORDER DETAILS</h1>
                   </div>
-                  <Button
-                    onClick={() => setShowRatingModal(true)}
-                    className="text-primary-100 bg-transparent"
-                  >
+                  <Button onClick={() => setShowRatingModal(true)} className="text-primary-100 bg-transparent">
                     Leave a Rating →
                   </Button>
                 </div>
@@ -112,28 +103,19 @@ export function OrderDetails() {
 
                 {/* Tracking Progress */}
                 <div className="mb-8">
-                  <h2 className="font-meduim mb-4">Order espected to be delivered in:</h2>
+                  <h2 className="font-medium mb-4">Order Status</h2>
                   <div className="relative flex items-center justify-between">
-                    {statusSteps.map((step, index) => {
-                      const isCompleted = index <= currentStatusStep;
-                      const isLast = index === statusSteps.length - 1;
+                    {trackingData.tracking_steps.map((step: any, index: number) => {
+                      const isCompleted = step.completed;
+                      const isLast = index === trackingData.tracking_steps.length - 1;
 
                       return (
                         <div key={index} className="flex-1 flex flex-col items-center relative">
-                          {/* Circle */}
-                          <div
-                            className={`w-6 h-6 rounded-full z-10 ${isCompleted ? 'bg-blue-600' : 'bg-gray-300'
-                              }`}
-                          ></div>
-
-                          {/* Step label */}
-                          <p className="text-xs mt-2 text-center">{step}</p>
-
-                          {/* Connector Line (except for the last step) */}
+                          <div className={`w-6 h-6 rounded-full z-10 ${isCompleted ? 'bg-blue-600' : 'bg-gray-300'}`} />
+                          <p className="text-xs mt-2 text-center">{step.label}</p>
                           {!isLast && (
                             <div
-                              className={`absolute top-3 left-1/2 h-1 w-full -translate-x-0.5 z-0 ${index < currentStatusStep ? 'bg-blue-600' : 'bg-gray-300'
-                                }`}
+                              className={`absolute top-3 left-1/2 h-1 w-full -translate-x-0.5 z-0 ${index < currentStep ? 'bg-blue-600' : 'bg-gray-300'}`}
                             ></div>
                           )}
                         </div>
@@ -146,7 +128,7 @@ export function OrderDetails() {
                 <div className="mb-8">
                   <h2 className="font-semibold mb-4">Order Activity</h2>
                   <ul className="space-y-4">
-                    {activityLog.map((log, index) => (
+                    {trackingData.activity_log.map((log: any, index: number) => (
                       <li key={index} className="flex items-start gap-4">
                         <div className="flex-shrink-0 mt-1">
                           <div className="w-4 h-4 bg-green-500 rounded-full"></div>
@@ -164,9 +146,7 @@ export function OrderDetails() {
 
                 {/* Products */}
                 <div className="mb-8">
-                  <h2 className="font-semibold mb-4">
-                    Products ({orderDetails.items.length})
-                  </h2>
+                  <h2 className="font-semibold mb-4">Products ({orderDetails.items.length})</h2>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -182,7 +162,7 @@ export function OrderDetails() {
                           <tr key={item.id} className="border-b">
                             <td className="py-4">
                               <div className="flex items-center gap-4">
-                                {item.product?.images?.length > 0 && (
+                                {item.product?.images?.[0]?.image_url && (
                                   <img
                                     src={item.product.images[0].image_url}
                                     alt={item.product.name}
@@ -194,9 +174,7 @@ export function OrderDetails() {
                             </td>
                             <td className="py-4">{formatCurrency(item.price)}</td>
                             <td className="py-4">×{item.quantity}</td>
-                            <td className="py-4">
-                              {formatCurrency(item.price * item.quantity)}
-                            </td>
+                            <td className="py-4">{formatCurrency(item.price * item.quantity)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -204,17 +182,13 @@ export function OrderDetails() {
                   </div>
                 </div>
 
-                {/* Future: Billing & Shipping Info */}
+                {/* Rating Modal */}
+                <RatingModal open={showRatingModal} onClose={() => setShowRatingModal(false)} />
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <RatingModal
-        open={showRatingModal}
-        onClose={() => setShowRatingModal(false)}
-      />
     </div>
   );
 }

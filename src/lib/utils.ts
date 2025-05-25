@@ -12,12 +12,14 @@ export function formatDate(date: string) {
     year: 'numeric',
   });
 }
-export function formatCurrency(amount: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
-}
+export const formatCurrency = (amount?: number | null) => {
+  if (typeof amount !== 'number' || isNaN(amount)) {
+    return '₦0';
+  }
+  return `₦${amount.toLocaleString()}`;
+};
+
+
 
 export function debounce<T extends (...args: any[]) => void>(
   func: T,

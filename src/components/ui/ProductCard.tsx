@@ -7,6 +7,7 @@ import useWishlistStore from "../../lib/store/useWishlistStore";
 import { Product } from "../../types";
 import Cookies from "js-cookie";
 import { ModalAuth } from "./LoginSignupModal";
+import { formatCurrency } from "../../lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -32,7 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const availableVariation = product.variations?.find((variation) => variation.quantity > 0);
   const isLoggedIn = !!Cookies.get("access_token");
-  const isInWishlist = wishlist.some((item) => item.product.id === product.id);
+  const isInWishlist = wishlist.some((item) => item?.product.id === product.id);
   const userId = Cookies.get("userId");
 
   const handleAddToCart = () => {
@@ -48,12 +49,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       setShowLoginModal(true);
       return;
     }
-  
+
     if (!availableVariation) {
       toast.error("No available variations for this product.");
       return;
     }
-  
+
     await addToWishlist({
       userId: Number(userId),
       productId: product.id,
@@ -65,19 +66,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`relative bg-white rounded-lg border overflow-hidden shadow-sm transition-all hover:shadow-lg ${compact ? 'p-2' : ''}`}
+        className={`relative bg-white rounded border overflow-hidden transition-all hover:shadow-lg ${compact ? 'p-2' : ''}`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <div>
+        <div className="px-2">
           <img
             src={product.images.length > 0 ? product.images[0].image_url : "/placeholder.jpg"}
             alt={product.name}
-            className={`w-full ${compact ? 'h-32' : 'h-48'} object-cover`}
+            className={`w-full ${compact ? 'h-32' : 'h-48'} object-contain`}
           />
 
           {hovered && (
-            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center gap-2 transition-opacity">
+            <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center gap-2 transition-opacity">
               {showWishlist && (
                 <button
                   className={`p-2 rounded-full transition-colors ${isInWishlist ? "bg-orange-600 text-white" : "bg-orange-500 text-white hover:bg-orange-600"
@@ -122,8 +123,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                     <Star
                       key={i}
                       className={`h-4 w-4 ${i < (product.average_rating ?? 0)
-                          ? "text-orange-400 fill-orange-400"
-                          : "text-gray-300"
+                        ? "text-orange-400 fill-orange-400"
+                        : "text-gray-300"
                         }`}
                     />
                   ))}
@@ -131,8 +132,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <span className="text-xs text-orange-500 ml-2">({product.reviews ?? 0})</span>
               </div>
             )}
+            <Link to={`/products/${product.id}`} className="block relative">
 
-            <h3 className={`text-sm font-medium text-gray-900 mb-2 ${compact ? 'line-clamp-1' : 'line-clamp-2'}`}>{product.name}</h3>
+              <h3 className={`text-sm font-medium text-gray-900 mb-2 ${compact ? 'line-clamp-1' : 'line-clamp-2'}`}>{product.name}</h3>
+            </Link>
 
             {/* <div className="flex items-center justify-between">
               <span className="text-md font-medium text-primary-default">
@@ -146,11 +149,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div> */}
             <div className="flex items-center justify-between">
               <span className="text-md font-medium text-primary-default">
-                ₦{(product.discount_price ?? product.price).toFixed(2)}
+                {formatCurrency(product.price)}
               </span>
               {product.discount_price && product.discount_price < product.price && (
                 <span className="text-sm text-gray-400 line-through ml-2 text-primary">
-                  ₦{product.price.toFixed(2)}
+                  {formatCurrency(product.discount_price)}
                 </span>
               )}
             </div>
