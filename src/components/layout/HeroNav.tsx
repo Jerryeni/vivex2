@@ -191,10 +191,10 @@ const HeroNav = () => {
 
   return (
     <div className="relative flex flex-col md:flex-row items-center justify-between py-2 border-bx w-full">
-      <div className="flex flex-col md:flex-row items-center justify-start space-x-0 md:space-x-6 space-y-2 md:space-y-0 w-full">
+      <div className="flex flex-col md:flex-row items-center justify-start space-x-0 md:space-x-6 space-y-2 md:space-y-0 md:w-3/4 w-full">
 
         <div className="w-full flex overflow-x-auto items-center justify-start space-x-6 text-sm text-gray-600">
-          <div className="w-full">
+          <div className="w-fullx">
             <button
               className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-md w-full"
               onClick={toggleDropdown}
@@ -209,25 +209,25 @@ const HeroNav = () => {
               />
             )}
           </div>
-          <a href="/track-order" className="flex items-center space-x-1 w-full">
+          <a href="/track-order" className="flex flex-col md:flex-row items-center space-x-1 ">
             <MapPin className="h-4 w-4" />
             <span>Track Order</span>
           </a>
 
 
-          <a href="/support" className="flex items-center space-x-1">
+          <a href="/support" className="flex flex-col md:flex-row items-center space-x-1 ">
             <Headphones className="h-4 w-4" />
             <span>Customer Support</span>
           </a>
-          <a href="faqs" className="flex items-center space-x-1">
+          <a href="faqs" className="flex flex-col md:flex-row items-center space-x-1 ">
             <HelpCircle className="h-4 w-4" />
             <span>Need Help</span>
           </a>
         </div>
       </div>
-      <div className="w-full flex items-center justify-endx space-x-2 mt-2 md:mt-0">
+      <div className="w-full flex items-center justify-center bg-green-200 md:bg-transparent md:py-0 py-2 md:justify-end space-x-2 mt-2 md:mt-0 md:w-1/4">
         <Phone className="h-4 w-4" />
-        <span>+1-202-555-0104</span>
+        <span>+234-567-8901</span>
       </div>
     </div>
   );
