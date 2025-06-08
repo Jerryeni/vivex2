@@ -65,34 +65,53 @@ const useWishlistStore = create<WishlistStore>((set, get) => ({
 
   /** Add item to wishlist */
   addToWishlist: async ({ userId, productId, productVariationId, quantity }) => {
+    const token = Cookies.get("access_token");
+  
+    if (!token) {
+      toast.error("You need to login to add to wishlist.");
+      return;
+    }
+  
     try {
       let wishlistPk = Cookies.get("wishlist_id");
-
+  
       if (!wishlistPk) {
-        // Create wishlist if not exists
-        const { data } = await api.post("/cart/wishlist/", { user: userId });
+        const { data } = await api.post("/cart/wishlist/", { user: userId }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         wishlistPk = data.data.uid;
         Cookies.set("wishlist_id", data.data.uid);
       }
-
-      const { data } = await api.post(`/cart/wishlist/${wishlistPk}/wishlist-items/`, {
-        product_id: productId,
-        product_variation_id: productVariationId,
-        quantity,
-      });
-
+  
+      const { data } = await api.post(
+        `/cart/wishlist/${wishlistPk}/wishlist-items/`,
+        {
+          product_id: productId,
+          product_variation_id: productVariationId,
+          quantity,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
       set((state) => {
         const updatedWishlist = [...state.wishlist, data];
         Cookies.set("wishlist", JSON.stringify(updatedWishlist), { expires: 7 });
         return { wishlist: updatedWishlist };
       });
-
+  
       toast.success("Item added to wishlist");
     } catch (error) {
       console.error("Error adding to wishlist:", error);
-      toast.error("Failed to add item to wishlist. Please try again.");
+      toast.error("Failed to add item to wishlist. Please login again.");
     }
   },
+  
 
   /** Remove item from wishlist */
   removeFromWishlist: async (itemId: number) => {

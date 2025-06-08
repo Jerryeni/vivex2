@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Package,   ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useOrders } from '../../lib/api/product';
 
 interface StatCard {
   title: string;
@@ -98,6 +99,8 @@ const recentOrders: RecentOrder[] = [
 
 
 export const AdminDashboard = () => {
+  const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
+  console.log("Orders:", orders);
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Main Content */}

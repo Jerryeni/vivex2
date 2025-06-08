@@ -112,7 +112,7 @@ export const BestDeals: React.FC = () => {
                   <span className="text-[#2DA5F3] font-bold">{formatCurrency(products[0].selling_price)}</span>
                   {products[0].price > products[0].selling_price && (
                     <span className="text-sm text-gray-400 line-through ml-2">
-                      ${products[0].price}
+                      {formatCurrency(products[0].price)}
                     </span>
                   )}
                 </div>
@@ -185,9 +185,9 @@ export const BestDeals: React.FC = () => {
                 <Link to={`/products/${product.id}`}>
                   <h3 className="text-xs font-normal mb-2">{product.name}</h3>
                 </Link>
-                <span className="text-[#2DA5F3] font-normal text-sm">${product.selling_price}</span>
+                <span className="text-[#2DA5F3] font-normal text-sm">{formatCurrency(product.selling_price)}</span>
                 {product.price > product.selling_price && (
-                  <span className="text-gray-400 text-sm line-through ml-2">${product.price}</span>
+                  <span className="text-gray-400 text-sm line-through ml-2">{formatCurrency(product.price)}</span>
                 )}
               </div>
             </div>

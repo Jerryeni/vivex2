@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { CartProvider } from './context/CartContext';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { Toaster } from 'react-hot-toast';
 
@@ -18,8 +18,8 @@ import { VerifyNotice } from './pages/auth/verify-notice';
 import { AboutUs } from './components/AboutUs';
 import { Support } from './components/Support';
 import { FAQ } from './components/FAQ';
-import { Blog } from './pages/blog';
-import { BlogPost } from './pages/blog/[id]';
+// import { Blog } from './pages/blog';
+import { BlogPost } from './pages/blog/[slug]';
 import { NotFound } from './pages/error/not-found';
 import { ProductDetails } from './pages/shop/[id]';
 import { TrackOrder } from './pages/shop/track-order';
@@ -44,6 +44,11 @@ import { ProductsPage } from './pages/shop';
 import CartPage from './pages/shop/cart';
 import Confirmation from './pages/shop/confirm-order';
 import ProtectedRoute from './components/ProtectedRoute';
+import Blog from './pages/blog';
+import { useAuthStore } from './lib/store/useAuthStore';
+import api from './lib/axios';
+import Cookies from 'js-cookie';
+import CategoryPage from './pages/shop/category';
 // import ProductsPage from './pages/shop';
 
 // Admin Pages (Lazy Load)
@@ -62,6 +67,27 @@ const queryClient = new QueryClient();
 function Layout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const { setAuth, logout } = useAuthStore();
+
+  useEffect(() => {
+    const token = Cookies.get("access_token");
+    if (token) {
+      api
+        .get("/accounts/user/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          const user = res.data;
+          const refreshToken = Cookies.get("refresh_token");
+          setAuth(user, token, refreshToken || "");
+        })
+        .catch(() => {
+          logout();
+        });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white">
@@ -81,13 +107,15 @@ function Layout() {
             <Route path="/support" element={<Support />} />
             <Route path="/faqs" element={<FAQ />} />
             <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:id" element={<BlogPost />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/track-order/:id" element={<TrackOrderDetails />} />
             <Route path="/compare" element={<Compare />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/products/:id" element={<ProductDetails />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+
             {/* <Route
               path="/checkout"
               element={

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency } from '../../lib/utils';
 
 interface FlashCardProps {
   imageSrc: string;
@@ -15,7 +16,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({ imageSrc, imageAlt, title,
       </div>
       <div className="flex flex-col w-full">
         <p className='font-light text-xs'>{title}</p>
-        <p className="text-blue-400">${price}</p>
+        <p className="text-blue-400">{formatCurrency(Number(price))}</p>
       </div>
     </div>
   );

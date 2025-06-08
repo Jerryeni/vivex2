@@ -17,6 +17,9 @@ import { Search } from '../ui/search';
 import useCartStore from '../../lib/store/useCartStore';
 import { useAuthStore } from '../../lib/store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
+import useWishlistStore from '../../lib/store/useWishlistStore';
+import { CartDropdown } from '../ui/CartDropdowm';
+import { WishlistDropdown } from '../ui/WishlistDropdown';
 
 interface UserProps {
   username: string;
@@ -38,9 +41,15 @@ const Dropdown: React.FC<{ children: React.ReactNode; className?: string }> = ({
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { user, logout } = useAuthStore();
+  const [isCartOpen, setCartOpen] = useState(false);
+  const [isWishlistOpen, setWishlistOpen] = useState(false);
+  const { user, logout, isAuthenticated, hydrated } = useAuthStore();
   const { cart } = useCartStore();
+  const { wishlist } = useWishlistStore();
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Wait until auth store is hydrated before rendering anything
+  if (!hydrated) return null;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -93,8 +102,16 @@ export const Header: React.FC = () => {
             <Search placeholder="Search for products..." className="w-full" />
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
-            <Link to="/cart" className="relative">
+          <div className="hidden md:flex items-center space-x-4 relative">
+            {/* <Link to="/cart" className="relative">
+              <ShoppingCart className="h-6 w-6" />
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </Link> */}
+            <Link to="#" className="relative" onClick={() => setCartOpen(!isCartOpen)}>
               <ShoppingCart className="h-6 w-6" />
               {cart.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
@@ -102,9 +119,16 @@ export const Header: React.FC = () => {
                 </span>
               )}
             </Link>
-            <Link to="/user/wishlist">
+            {isCartOpen && <CartDropdown onClose={() => setCartOpen(false)} />}
+            <Link to="/user/wishlist" className="relative" onClick={() => setWishlistOpen(!isWishlistOpen)}>
               <Heart className="h-6 w-6" />
+              {wishlist.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {wishlist.length}
+                </span>
+              )}
             </Link>
+            {isWishlistOpen && <WishlistDropdown onClose={() => setWishlistOpen(false)} />}
 
             <div className="relative" ref={userMenuRef}>
               <button
@@ -172,7 +196,7 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Menu with animation */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -183,12 +207,11 @@ export const Header: React.FC = () => {
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setIsMenuOpen(false)}
             />
-
             <motion.div
               initial={{ y: '-100%' }}
               animate={{ y: 0 }}
               exit={{ y: '-100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30, duration: 0.3 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="fixed top-0 left-0 right-0 bg-white z-50 md:hidden shadow-lg"
             >
               <div className="p-4">

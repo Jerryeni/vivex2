@@ -33,7 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const availableVariation = product.variations?.find((variation) => variation.quantity > 0);
   const isLoggedIn = !!Cookies.get("access_token");
-  const isInWishlist = wishlist.some((item) => item?.product.id === product.id);
+  // const isInWishlist = wishlist.some((item) => item?.product.id === product.id);
   const userId = Cookies.get("userId");
 
   const handleAddToCart = () => {
@@ -81,11 +81,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center gap-2 transition-opacity">
               {showWishlist && (
                 <button
-                  className={`p-2 rounded-full transition-colors ${isInWishlist ? "bg-orange-600 text-white" : "bg-orange-500 text-white hover:bg-orange-600"
+                  className={`p-2 rounded-full transition-colors ${wishlist ? "bg-orange-600 text-white" : "bg-orange-500 text-white hover:bg-orange-600"
                     }`}
                   onClick={handleAddToWishlist}
                 >
-                  <Heart className="h-5 w-5" fill={isInWishlist ? "currentColor" : "none"} />
+                  <Heart className="h-5 w-5" fill={wishlist ? "currentColor" : "none"} />
                 </button>
               )}
 

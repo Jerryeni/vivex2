@@ -1,45 +1,54 @@
 import { Link } from 'react-router-dom';
+import { slugify } from '../../lib/utils';
+import { useCategories } from '../../lib/api/product';
 
 export function Footer() {
+  const {
+    data: allCategories,
+  } = useCategories();
+
+  const categoriesToShow = allCategories?.slice(0, 6) || [];
+
   return (
     <footer className="bg-[#1E1E1E] text-white pt-16 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-3  lg:grid-cols-5 gap-8 mb-12">
           <div>
             <Link to="/" className=" mb-4 space-x-2">
-              <img src='/logo2.png' alt="Vivian's Store" className="" />
+              <img src='/logo2.png' alt="Vivian's Store" />
             </Link>
             <div className="mt-3 text-gray-400">
               <p className="mb-4">Customer Support:</p>
               <p className="text-lg font-bold mb-2">(+234) 805-155-0129</p>
-              <p className="mb-2">4517 Washington Ave.</p>
-              <p className="mb-4">Manchester, Kentucky 39495</p>
+              <p className="mb-4">Lagos, Nigeria 39495</p>
               <p>info@vivianstore.com</p>
             </div>
           </div>
+
           <div>
             <h3 className="text-lg font-bold mb-6">TOP CATEGORY</h3>
             <ul className="space-y-4 text-gray-400">
-              <li><Link to="/category/computer">Computer & Laptop</Link></li>
-              <li><Link to="/category/smartphone">SmartPhone</Link></li>
-              <li><Link to="/category/headphone">Headphone</Link></li>
-              <li><Link to="/category/accessories">Accessories</Link></li>
-              <li><Link to="/category/camera">Camera & Photo</Link></li>
-              <li><Link to="/category/tv">TV & Homes</Link></li>
+              {categoriesToShow.map((cat: any) => (
+                <li key={cat.id}>
+                  <Link to={`/category/${slugify(cat.name)}`}>{cat.name}</Link>
+                </li>
+              ))}
             </ul>
           </div>
+
           <div>
             <h3 className="text-lg font-bold mb-6">QUICK LINKS</h3>
             <ul className="space-y-4 text-gray-400">
-              <li><Link to="/shop">Shop Product</Link></li>
+              <li><Link to="/products">Shop Product</Link></li>
               <li><Link to="/cart">Shopping Cart</Link></li>
               <li><Link to="/wishlist">Wishlist</Link></li>
-              <li><Link to="/compare">Compare</Link></li>
-              <li><Link to="/track">Track Order</Link></li>
+              {/* <li><Link to="/compare">Compare</Link></li> */}
+              <li><Link to="/track-order">Track Order</Link></li>
               <li><Link to="/support">Customer Help</Link></li>
               <li><Link to="/about">About Us</Link></li>
             </ul>
           </div>
+
           <div>
             <h3 className="text-lg font-bold mb-6">DOWNLOAD APP</h3>
             <div className="space-y-4">
@@ -63,6 +72,7 @@ export function Footer() {
               </a>
             </div>
           </div>
+
           <div>
             <h3 className="text-lg font-bold mb-6">POPULAR TAG</h3>
             <div className="flex flex-wrap gap-2">
@@ -82,6 +92,7 @@ export function Footer() {
             </div>
           </div>
         </div>
+
         <div className="border-t border-gray-800 pt-8">
           <Link to="/products" className="text-[#F86F03] hover:underline">
             Browse All Product →

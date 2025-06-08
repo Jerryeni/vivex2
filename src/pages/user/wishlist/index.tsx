@@ -16,6 +16,12 @@ export function Wishlist() {
     fetchWishlist();
   }, [fetchWishlist]);
 
+  useEffect(() => {
+    if (wishlist.length > 0 && wishlist[0]?.product) {
+      console.log(wishlist[0].product.images?.[0]?.image_url);
+    }
+  }, [wishlist]);
+
   const handleRemove = (itemId: number) => {
     removeFromWishlist(itemId);
   };
@@ -24,8 +30,6 @@ export function Wishlist() {
     addToCart(productId, variationId, 1);
     toast.success("Product added to cart.");
   };
-
-  console.log(wishlist[0]?.product.images[0].image_url);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,14 +67,14 @@ export function Wishlist() {
                             <td className="py-4">
                               <div className="flex items-center gap-4">
                                 <img
-                                  src={item.product?.images[0].image_url || `https://via.placeholder.com/64?text=${item.product.name[0]}`}
-                                  alt={item.product.name}
+                                  src={item.product?.images?.[0]?.image_url || `https://via.placeholder.com/64?text=${item.product?.name?.[0]}`}
+                                  alt={item.product?.name || "Product Image"}
                                   className="w-16 h-16 object-cover rounded"
                                 />
                                 <div>
-                                  <h3 className="font-semibold line-clamp-1">{item.product.name}</h3>
+                                  <h3 className="font-semibold line-clamp-1">{item.product?.name}</h3>
                                   <p className="text-gray-500 text-xs">
-                                    Size: {item.product_variation.size} | Color: {item.product_variation.color}
+                                    Size: {item.product_variation?.size} | Color: {item.product_variation?.color}
                                   </p>
                                 </div>
                               </div>
@@ -79,11 +83,11 @@ export function Wishlist() {
                             <td className="py-4">
                               <div className="flex flex-col">
                                 <span className="font-medium">
-                                  {formatCurrency(item.product.discount_price || item.product.price)}
+                                  {formatCurrency(item.product?.discount_price || item.product?.price)}
                                 </span>
-                                {item.product.discount_price && (
+                                {item.product?.discount_price && (
                                   <span className="text-gray-400 text-xs line-through">
-                                    {formatCurrency(item.product.price)}
+                                    {formatCurrency(item.product?.price)}
                                   </span>
                                 )}
                               </div>

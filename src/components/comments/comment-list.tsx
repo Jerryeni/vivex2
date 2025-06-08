@@ -32,6 +32,7 @@ export function CommentList({ postId }: CommentListProps) {
 
   return (
     <div className="space-y-6">
+      <h2 className="text-lg sm:text-xl font-semibold mb-6">Comments</h2>
       {filteredComments.map((comment) => (
         <div key={comment.id} className="flex gap-4">
           <div className="flex-shrink-0">

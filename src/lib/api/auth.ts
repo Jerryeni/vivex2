@@ -33,12 +33,11 @@ interface ResetPasswordData {
 }
 
 interface UpdateUserData {
-  name?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
-  phone?: string;
-  avatar?: File | string;
-  currentPassword?: string;
-  newPassword?: string;
+  phone_number?: File | string;
+  username?: string;
 }
 
 export const useLogin = () => {
@@ -192,21 +191,9 @@ export const useUpdateUser = () => {
   return useMutation({
     mutationFn: async (updatedData: UpdateUserData) => {
       if (!user?.id) throw new Error('User ID not found');
-
       let payload: any = updatedData;
-      const isMultipart = updatedData.avatar instanceof File;
 
-      if (isMultipart) {
-        payload = new FormData();
-        Object.entries(updatedData).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            payload.append(key, value);
-          }
-        });
-      }
-
-      const config = isMultipart ? { headers: { 'Content-Type': 'multipart/form-data' } } : {};
-      const { data: response } = await api.put(`/accounts/user/${user.id}/`, payload, config);
+      const { data: response } = await api.put(`/accounts/user/${user.id}/`, payload);
       return response;
     },
     onSuccess: ({ data }) => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Star, Heart, Minus, Plus } from "lucide-react";
+import { Star, Heart, Minus, Plus, CarTaxiFront, ShoppingCart } from "lucide-react";
 import { ProductSkeleton } from "../../components/ui/ProductSkeleton";
 import { ProductCard } from "../../components/ui/ProductCard";
 import { useProduct, useProducts } from "../../lib/api/product";
@@ -10,6 +10,10 @@ import { useAuthStore } from "../../lib/store/useAuthStore";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { ModalAuth } from "../../components/ui/LoginSignupModal";
+import { formatCurrency } from "../../lib/utils";
+import HeroNav from "../../components/layout/HeroNav";
+import { Breadcrumb } from "../../components/ui/Breadcrumb";
+import { FlashCard } from "../../components/ui/flash-card";
 
 const userId = Cookies.get("userId");
 
@@ -114,15 +118,23 @@ export const ProductDetails = () => {
     ?.filter((p: any) => p.category?.id === productData.category?.id && p.id !== productData.id)
     .slice(0, 4) || [];
 
+    const breadcrumbItems = [
+      { label: 'products', href: '/products' },
+      { label: product || 'All Products' },
+    ];
+
   return (
     <>
       <div className="min-h-screen bg-gray-50">
+        {/* <Breadcrumb items={breadcrumbItems} /> */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
+        <HeroNav />
+          
+          <div className="rounded p-6 mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Image Viewer */}
-              <div>
-                <div className="aspect-w-4 aspect-h-3 mb-4">
+              <div className="relative ">
+                <div className="border rounded p-8 aspect-w-4 aspect-h-3 mb-4">
                   <img
                     src={productData.images?.[selectedImage]?.image_url || "https://via.placeholder.com/400"}
                     alt={productData.name}
@@ -134,7 +146,7 @@ export const ProductDetails = () => {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`rounded-lg border overflow-hidden ${selectedImage === index ? "ring-2 ring-blue-500" : ""}`}
+                      className={`rounded max-h-[100px] border overflow-hidden ${selectedImage === index ? "ring-2 ring-primary-100" : ""}`}
                     >
                       <img
                         src={image.image_url || "https://via.placeholder.com/400"}
@@ -161,42 +173,46 @@ export const ProductDetails = () => {
                     {productData.average_rating} Star Rating ({productData.reviews} Reviews)
                   </span>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">{productData.name}</h1>
-                <div className="flex items-center mb-6 text-sm text-gray-600">
-                  <span className="mx-4">|</span>
-                  <span>Brand: <strong>{productData.brand}</strong></span>
-                  <span className="mx-4">|</span>
-                  <span>Category: <strong>{productData.category?.name || "N/A"}</strong></span>
+                <h1 className="text-lg font-medium  mb-2">{productData.name}</h1>
+                <div className="grid grid-cols-2 items-center mb-2 text-sm text-gray-600">
+                  <span className="text-xs">Brand: <strong>{productData.brand}</strong></span>
+                  <span className="text-xs">Category: <strong>{productData.category?.name || "N/A"}</strong></span>
                 </div>
-                <div className="flex items-center space-x-4 mb-6">
-                  <span className="text-xl font-bold text-secondary-100">
-                    ${Number(productData.selling_price).toFixed(2)}
+                <div className="flex items-center space-x-4 ">
+                  <span className="text-md font-medium text-secondary-100">
+                    {formatCurrency(productData.selling_price)}
                   </span>
                   {productData.price && (
                     <>
-                      <span className="text-xl text-gray-400 line-through">
-                        ${Number(productData.price).toFixed(2)}
+                      <span className="text-md text-gray-400 line-through">
+                        {formatCurrency(productData.price)}
                       </span>
-                      <span className="px-2 py-1 text-sm text-black bg-yellow/25 rounded">
+                      <span className="px-2 py-1 text-sm text-black bg-yellow/50 rounded">
                         {Math.round(((productData.price - productData.selling_price) / productData.price) * 100)}% OFF
                       </span>
                     </>
                   )}
                 </div>
+                <div className="h-px bg-gray-400/40 my-4"></div>
+                <div className="flex flex-col">
+                  <span>Color</span>
+                  <div className="rounded-full"></div>
+                </div>
 
                 {defaultVariation ? (
                   <div className="flex items-center space-x-4 mb-6">
-                    <div className="flex items-center border rounded-md">
-                      <button onClick={handleDecreaseQuantity} className="px-3 py-2 border-r hover:bg-gray-50">
+                    <div className="flex items-center border rounded">
+                      <button onClick={handleDecreaseQuantity} className="px-3 py-4 border- hover:bg-gray-50">
                         <Minus className="h-4 w-4" />
                       </button>
                       <span className="px-4 py-2">{cartItem?.quantity || 1}</span>
-                      <button onClick={handleIncreaseQuantity} className="px-3 py-2 border-l hover:bg-gray-50">
+                      <button onClick={handleIncreaseQuantity} className="px-3 py-4 border- hover:bg-gray-50">
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
-                    <button onClick={handleAddToCart} className="flex-1 bg-orange-500 text-white px-6 py-3 rounded-md hover:bg-orange-600 transition-colors">
-                      ADD TO CART
+                    <button onClick={handleAddToCart} className="flex-1 bg-orange-500 text-white px-6 py-4 rounded hover:bg-orange-600 transition-colors flex justify-center gap-2">
+                      ADD TO CART 
+                      <span><ShoppingCart /></span>
                     </button>
                     <button onClick={toggleWishlist} className={`px-4 py-3 border rounded-md hover:bg-gray-50 ${liked ? "text-red-500" : "text-gray-400"}`}>
                       <Heart className="h-5 w-5 fill-current" />
@@ -211,13 +227,19 @@ export const ProductDetails = () => {
 
           {/* Related Products */}
           <div className="mt-12">
-            <h2 className="text-2xl font-bold mb-6">Related Products</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <h2 className="text-xl font-medium mb-6">Related Products</h2>
+            <div className="grid grid-cols-1 w-fit gap-6">
               {isRelatedLoading ? (
                 <p>Loading related products...</p>
               ) : relatedProducts.length > 0 ? (
                 relatedProducts.map((relatedProduct: any) => (
-                  <ProductCard key={relatedProduct.id} product={relatedProduct} />
+                  <FlashCard 
+                  key={relatedProduct.id}
+                  imageSrc={relatedProduct.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+                  imageAlt={relatedProduct.name}
+                  title={relatedProduct.name}
+                  price={relatedProduct.price}
+                  />
                 ))
               ) : (
                 <p>No related products found.</p>

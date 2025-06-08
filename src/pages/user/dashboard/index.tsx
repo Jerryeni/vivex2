@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight,
@@ -12,6 +12,9 @@ import { formatCurrency } from '../../../lib/utils';
 import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
 import { useBrowsingHistory, useOrders } from '../../../lib/api/product';
+import { Modal } from '../../../components/ui/general-modal';
+import { useUpdateUser } from '../../../lib/api/auth';
+
 
 
 
@@ -33,13 +36,55 @@ const getStatusColor = (status: string) => {
 
 
 export function Dashboard() {
-  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [editAccountOpen, setEditAccountOpen] = useState(false);
+  const [editAddressOpen, setEditAddressOpen] = useState(false);
   const { user, logout } = useAuthStore();
+  const { mutate: updateUser, isPending: isUpdatingUser } = useUpdateUser();
 
+  // if (!user) return <div>Loading user data...</div>;
+
+  // const [showEmailAlert, setShowEmailAlert] = useState(!user.email_verified);
   const { data: browsingHistory, isLoading, error } = useBrowsingHistory();
   const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
   console.log("Orders:", orders);
   console.log("browsingHistory:", browsingHistory);
+
+  console.log("User:", user);
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone_number: '',
+    username: '',
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        first_name: user.first_name || '',
+        last_name: user.last_name || '',
+        email: user.email || '',
+        phone_number: user.phone_number|| '',
+        username: user.username || '',
+      });
+    }
+  }, [user]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateAccount = (e:any) => {
+      e.preventDefault();
+      updateUser(formData);
+      setEditAccountOpen(false);
+  };
+
+  const handleUpdateAddress = () => {
+    updateUser(formData);
+    setEditAddressOpen(false);
+  };
 
 
   const recentOrders = orders
@@ -62,7 +107,24 @@ export function Dashboard() {
 
           {/* Main Content */}
           <div className="flex-1">
-
+            {/* {showEmailAlert && !user.email_verified && (
+              <div className="bg-red-100 border border-red-400 text-orange-700 px-4 py-3 rounded relative mx-4 mb-4" role="alert">
+                <strong className="font-bold">Email not verified!</strong>
+                <span className="block sm:inline ml-2">
+                  Please verify your email to unlock full access to your account features.
+                </span>
+                <button
+                  onClick={() => setShowEmailAlert(false)}
+                  className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                >
+                  <svg className="fill-current h-6 w-6 text-orange-700" role="button" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20">
+                    <title>Close</title>
+                    <path d="M14.348 5.652a1 1 0 00-1.414 0L10 8.586 7.066 5.652a1 1 0 10-1.414 1.414L8.586 10l-2.934 2.934a1 1 0 101.414 1.414L10 11.414l2.934 2.934a1 1 0 001.414-1.414L11.414 10l2.934-2.934a1 1 0 000-1.414z" />
+                  </svg>
+                </button>
+              </div>
+            )} */}
             <div className="flex flex-col py-4">
               <p className="text-2xl font-medium">Hello {user.username}</p>
               <p className="text-black/50 font-light text-sm max-w-md">From your account dashboard. you can easily check & view your Recent Orders, manage your Shipping and Billing Addresses and edit your Password and Account Details.</p>
@@ -85,7 +147,7 @@ export function Dashboard() {
                       </div>
                       <div>
                         <h2 className="font-semibold">{user.username}</h2>
-                        <p className="text-sm text-gray-500">Lagos, Nigeria</p>
+                        {/* <p className="text-sm text-gray-500">Lagos, Nigeria</p> */}
                       </div>
                     </div>
                     <div>
@@ -94,13 +156,12 @@ export function Dashboard() {
                     </div>
                     <div>
                       <span className="text-sm text-gray-500">Phone Number:</span>
-                      <span className="text-sm text-gray-500">{user.id}</span>
+                      <span className="text-sm text-gray-500">{user.phone_number}</span>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-secondary-100"
-                      onClick={() => { }}
+                      onClick={() => setEditAccountOpen(true)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Account
@@ -117,7 +178,7 @@ export function Dashboard() {
                     <div className="flex items-center gap-4 mb-2">
 
                       <div>
-                        <p className="font-semibold">{user.name}</p>
+                        <p className="font-semibold">{user.first_name}</p>
                         <p className="text-sm text-gray-500">{user.address}</p>
                       </div>
                     </div>
@@ -132,8 +193,7 @@ export function Dashboard() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-secondary-100"
-                      onClick={() => { }}
+                      onClick={() => setEditAddressOpen(true)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit Address
@@ -384,6 +444,79 @@ export function Dashboard() {
                   ))}
                 </div> */}
               </div>
+
+              {/* Edit Account Modal */}
+              <Modal
+                isOpen={editAccountOpen}
+                onClose={() => setEditAccountOpen(false)}
+                title="Edit Account Info"
+              >
+                <form onSubmit={handleUpdateAccount}>
+                <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">First name</label>
+                    <input
+                      defaultValue={user.first_name}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Last name</label>
+                    <input
+                      defaultValue={user.last_name}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Phone number</label>
+                    <input
+                      defaultValue={user.phone_number}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  
+                  
+                  <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Email</label>
+                    <input
+                      defaultValue={user.email}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Username</label>
+                    <input
+                      defaultValue={user.username}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  <Button type="submit" disabled={isUpdatingUser}>Save</Button>
+                </form>
+              </Modal>
+
+              {/* Edit Address Modal */}
+              {/* <Modal
+                isOpen={editAddressOpen}
+                onClose={() => setEditAddressOpen(false)}
+                title="Edit Billing Address"
+              >
+                <form onSubmit={(e) => { e.preventDefault(); handleUpdateAddress(); }}>
+                  <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Full Name</label>
+                    <input
+                      defaultValue={user.first_name}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label className="block mb-1 text-sm font-medium">Address</label>
+                    <input
+                      defaultValue={user.address}
+                      className="w-full border px-3 py-2 rounded"
+                    />
+                  </div>
+                  <Button type="submit">Save</Button>
+                </form>
+              </Modal> */}
             </div>
           </div>
         </div>

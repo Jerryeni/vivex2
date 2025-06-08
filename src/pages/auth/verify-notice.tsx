@@ -67,7 +67,7 @@ export function VerifyNotice() {
             {email ? (
               <>
                 Please check your email <span className="text-primary-100 font-semibold">{email}</span> for a
-                verification message. You need to verify your email before accessing your account.
+                verification message. You can skip this step if you haven't received it.
               </>
             ) : (
               'No email found. Please try signing up again.'

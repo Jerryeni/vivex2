@@ -32,3 +32,7 @@ export function debounce<T extends (...args: any[]) => void>(
     timeout = setTimeout(() => func(...args), wait);
   };
 }
+
+// utils/slugify.ts
+export const slugify = (text: string) =>
+  text.toLowerCase().replace(/\s+/g, '-');

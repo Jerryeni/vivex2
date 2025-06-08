@@ -31,6 +31,13 @@ interface Tag {
   slug: string;
 }
 
+
+interface BlogPostsParams {
+  search?: string;
+  ordering?: string;
+  page?: number;
+}
+
 // Fetch Blog Categories
 export const useBlogCategories = () => {
   return useQuery({
@@ -42,27 +49,30 @@ export const useBlogCategories = () => {
   });
 };
 
-// Fetch Blog Posts by Category
-export const useBlogPosts = (category: string | null) => {
+
+export const useBlogPosts = (params: BlogPostsParams = {}) => {
   return useQuery({
-    queryKey: ['blog-posts', category],
+    queryKey: ['blog-posts', params],
     queryFn: async () => {
       const { data } = await api.get('/blog/posts/', {
-        params: category ? { category } : {},
+        params,
       });
-      return data.results;
+      console.log(data);
+      return data.results; // full response: { count, next, previous, results }
     },
   });
 };
 
+
 // Fetch Single Blog Post by Slug
-export const useBlogPostBySlug = (slug: string | undefined) => {
+export const useBlogPostBySlug = (slug?: string | undefined) => {
   return useQuery({
     queryKey: ['blog-post', slug],
     queryFn: async () => {
       if (!slug) throw new Error('Slug is required');
       const { data } = await api.get(`/blog/posts/${slug}/`);
-      return data;
+      console.log(data.data);
+      return data.data;
     },
     enabled: !!slug,
   });

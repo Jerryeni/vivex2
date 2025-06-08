@@ -227,7 +227,7 @@ const HeroNav = () => {
           </a>
         </div>
       </div>
-      <div className="flex items-end justify-end space-x-2 mt-2 md:mt-0">
+      <div className="flex items-center justify-endx space-x-2 mt-2 md:mt-0">
         <Phone className="h-4 w-4" />
         <span>+1-202-555-0104</span>
       </div>

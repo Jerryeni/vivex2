@@ -40,6 +40,7 @@ export const Blog: React.FC = () => {
           </article>
         ))}
       </div>
+      <Link to="/blog" className="text-orange-500 text-sm hover:underline block mt-4 text-center"> View All Blogs → </Link>
     </section>
   );
 };

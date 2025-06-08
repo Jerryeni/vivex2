@@ -4,6 +4,9 @@ import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 
 interface CartItem {
+  image: string | undefined;
+  name: string | undefined;
+  price: number;
   id: number;
   quantity: number;
   sub_total: number;
