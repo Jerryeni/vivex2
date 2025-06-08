@@ -190,48 +190,56 @@ const HeroNav = () => {
   };
 
   return (
-    <div className="relative flex flex-col md:flex-row items-center justify-between py-2 border-bx w-full">
-      <div className="flex flex-col md:flex-row items-center justify-start space-x-0 md:space-x-6 space-y-2 md:space-y-0 w-full">
-
-        <div className="w-full flex flex-wrap items-center justify-start space-x-6 text-sm text-gray-600">
-          <div className="">
-            <button
-              className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-md"
-              onClick={toggleDropdown}
-            >
-              <span>All Category</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
-            {isDropdownOpen && (
+    <div className="w-full border-b py-3 px-4 md:px-6 bg-white">
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    {/* Left Side - Grid layout for nav links */}
+    <div className="w-full">
+      <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 md:flex md:items-center md:space-x-6 md:gap-0">
+        
+        {/* All Category Dropdown */}
+        <div className="col-span-2 md:col-auto">
+          <button
+            className="flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-md text-center w-full md:w-auto"
+            onClick={toggleDropdown}
+          >
+            <span className='text-center'>All Category</span>
+            <ChevronDown className="h-4 w-4" />
+          </button>
+          {isDropdownOpen && (
+            <div className="absolute z-10 mt-2 w-48 bg-white border rounded-md shadow-lg">
               <CategoryDropdown
                 isOpen={isDropdownOpen}
                 toggleDropdown={toggleDropdown}
               />
-            )}
-          </div>
-          <a href="/track-order" className="flex items-center space-x-1">
-            <MapPin className="h-4 w-4" />
-            <span>Track Order</span>
-          </a>
-          {/* <a href="#" className="flex items-center space-x-1">
-            <RefreshCw className="h-4 w-4" />
-            <span>Compare</span>
-          </a> */}
-          <a href="/support" className="flex items-center space-x-1">
-            <Headphones className="h-4 w-4" />
-            <span>Customer Support</span>
-          </a>
-          <a href="faqs" className="flex items-center space-x-1">
-            <HelpCircle className="h-4 w-4" />
-            <span>Need Help</span>
-          </a>
+            </div>
+          )}
         </div>
-      </div>
-      <div className="flex items-center justify-endx space-x-2 mt-2 md:mt-0">
-        <Phone className="h-4 w-4" />
-        <span>+1-202-555-0104</span>
+
+        {/* Other nav links */}
+        <a href="/track-order" className="flex items-center space-x-1">
+          <MapPin className="h-4 w-4" />
+          <span>Track Order</span>
+        </a>
+
+        <a href="/support" className="flex items-center space-x-1">
+          <Headphones className="h-4 w-4" />
+          <span>Customer Support</span>
+        </a>
+
+        <a href="/faqs" className="flex items-center space-x-1">
+          <HelpCircle className="h-4 w-4" />
+          <span>Need Help</span>
+        </a>
       </div>
     </div>
+
+    {/* Right Side - Phone Number */}
+    <div className="w-full flex items-center justify-start md:justify-end gap-2 text-sm text-gray-700">
+      <Phone className="h-4 w-4" />
+      <span>+1-202-555-0104</span>
+    </div>
+  </div>
+</div>
   );
 };
 

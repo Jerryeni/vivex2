@@ -226,6 +226,7 @@ export const ProductDetails = () => {
           </div>
 
           {/* Related Products */}
+          <div className="grid grid-cols-2"></div>
           <div className="mt-12">
             <h2 className="text-xl font-medium mb-6">Related Products</h2>
             <div className="grid grid-cols-1 w-fit gap-6">
