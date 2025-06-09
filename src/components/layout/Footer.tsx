@@ -76,19 +76,19 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-6">POPULAR TAG</h3>
             <div className="flex flex-wrap gap-2">
-              <Link to="/tag/game" className="bg-[#2A2A2A] px-3 py-1 rounded">Game</Link>
-              <Link to="/tag/iphone" className="bg-[#2A2A2A] px-3 py-1 rounded">iPhone</Link>
-              <Link to="/tag/tv" className="bg-[#2A2A2A] px-3 py-1 rounded">TV</Link>
-              <Link to="/tag/asus" className="bg-[#2A2A2A] px-3 py-1 rounded">Asus Laptops</Link>
-              <Link to="/tag/macbook" className="bg-[#2A2A2A] px-3 py-1 rounded">Macbook</Link>
-              <Link to="/tag/ssd" className="bg-[#2A2A2A] px-3 py-1 rounded">SSD</Link>
-              <Link to="/tag/graphics" className="bg-[#2A2A2A] px-3 py-1 rounded">Graphics Card</Link>
-              <Link to="/tag/powerbank" className="bg-[#2A2A2A] px-3 py-1 rounded">Power Bank</Link>
-              <Link to="/tag/smart-tv" className="bg-[#2A2A2A] px-3 py-1 rounded">Smart TV</Link>
-              <Link to="/tag/speaker" className="bg-[#2A2A2A] px-3 py-1 rounded">Speaker</Link>
-              <Link to="/tag/tablet" className="bg-[#2A2A2A] px-3 py-1 rounded">Tablet</Link>
-              <Link to="/tag/microwave" className="bg-[#2A2A2A] px-3 py-1 rounded">Microwave</Link>
-              <Link to="/tag/samsung" className="bg-[#2A2A2A] px-3 py-1 rounded">Samsung</Link>
+              <Link to="/blog/game" className="bg-[#2A2A2A] px-3 py-1 rounded">Game</Link>
+              <Link to="/blog/iphone" className="bg-[#2A2A2A] px-3 py-1 rounded">iPhone</Link>
+              <Link to="/blog/tv" className="bg-[#2A2A2A] px-3 py-1 rounded">TV</Link>
+              <Link to="/blog/asus" className="bg-[#2A2A2A] px-3 py-1 rounded">Asus Laptops</Link>
+              <Link to="/blog/macbook" className="bg-[#2A2A2A] px-3 py-1 rounded">Macbook</Link>
+              <Link to="/blog/ssd" className="bg-[#2A2A2A] px-3 py-1 rounded">SSD</Link>
+              <Link to="/blog/graphics" className="bg-[#2A2A2A] px-3 py-1 rounded">Graphics Card</Link>
+              <Link to="/blog/powerbank" className="bg-[#2A2A2A] px-3 py-1 rounded">Power Bank</Link>
+              <Link to="/blog/smart-tv" className="bg-[#2A2A2A] px-3 py-1 rounded">Smart TV</Link>
+              <Link to="/blog/speaker" className="bg-[#2A2A2A] px-3 py-1 rounded">Speaker</Link>
+              <Link to="/blog/tablet" className="bg-[#2A2A2A] px-3 py-1 rounded">Tablet</Link>
+              <Link to="/blog/microwave" className="bg-[#2A2A2A] px-3 py-1 rounded">Microwave</Link>
+              <Link to="/blog/samsung" className="bg-[#2A2A2A] px-3 py-1 rounded">Samsung</Link>
             </div>
           </div>
         </div>

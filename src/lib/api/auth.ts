@@ -215,3 +215,40 @@ export const useUserDetails = () => {
     },
   });
 };
+
+// Upload profile picture (POST)
+export const useUploadProfilePic = () => {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('profile_image', file);
+
+      const { data } = await api.post('/accounts/user/profile-pics/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
+          'Origin': 'http://localhost:5173',
+          'cors': 'true',
+        },
+      });
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Profile picture updated!');
+    },
+    onError: () => {
+      toast.error('Failed to update profile picture.');
+    },
+  });
+};
+
+// Fetch current profile picture (GET)
+export const useProfilePic = () => {
+  return useQuery({
+    queryKey: ['profile-pic'],
+    queryFn: async () => {
+      const { data } = await api.get('/accounts/user/profile-pics/');
+      return data;
+    },
+  });
+};

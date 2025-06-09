@@ -78,9 +78,10 @@ export const BestDeals: React.FC = () => {
               onMouseEnter={() => setHoveredProduct(products[0].id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
-              <div className="relative">
+              <div className="relative p-2">
                 {products[0].is_hot && (
-                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                  
+                  <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 roundedx">
                     HOT
                   </span>
                 )}
@@ -105,29 +106,32 @@ export const BestDeals: React.FC = () => {
                   </span>
                 </div>
                 <Link to={`/products/${products[0].id}`}>
-                  <h3 className="text-sm font-medium mb-2">{products[0].name}</h3>
+                  <h3 className="text-sm font-medium mb-2x">{products[0].name}</h3>
 
                 </Link>
-                <div className="mb-2">
-                  <span className="text-[#2DA5F3] font-bold">{formatCurrency(products[0].selling_price)}</span>
+                <div className="py-2">
+                  <span className="text-[#2DA5F3] font-medium">{formatCurrency(products[0].selling_price)}</span>
                   {products[0].price > products[0].selling_price && (
                     <span className="text-sm text-gray-400 line-through ml-2">
                       {formatCurrency(products[0].price)}
                     </span>
                   )}
                 </div>
+                <p className="text-xs text-gray-500 line-clamp-3 mb-4">
+                  {products[0].description}
+                </p>
                 <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full">
                     <button
                       onClick={() => handleAddToWishlist(products[0])}
-                      className={`p-2 ${isInWishlist(products[0].id) ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500/20 text-white'} `}
+                      className={`p-2 ${isInWishlist(products[0].id) ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500/20 text-white hover:bg-gray-100 '} `}
                       disabled={isInWishlist(products[0].id)}
                     >
                       <Heart className="h-5 w-5 text-black/70" />
                     </button>
                     <button
                       onClick={() => handleAddToCart(products[0])}
-                      className="bg-orange-500 text-white px-4 py-2 roundedx hover:bg-orange-600 transition-colors"
+                      className="w-full bg-orange-500 text-white px-4 py-2 roundedx hover:bg-orange-600 transition-colors"
                     >
                       ADD TO CART
                     </button>
@@ -148,7 +152,7 @@ export const BestDeals: React.FC = () => {
           {products.slice(1).map((product) => (
             <div
               key={product.id}
-              className="bg-white overflow-hidden border h-[250px]x"
+              className="bg-white overflow-hidden border h-[250px]x p-2"
               onMouseEnter={() => setHoveredProduct(product.id)}
               onMouseLeave={() => setHoveredProduct(null)}
             >
@@ -181,7 +185,7 @@ export const BestDeals: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="p-4">
+              <div className="p-2">
                 <Link to={`/products/${product.id}`}>
                   <h3 className="text-xs font-normal mb-2">{product.name}</h3>
                 </Link>

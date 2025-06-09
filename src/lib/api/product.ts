@@ -1,7 +1,8 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../axios';
 import Cookies from 'js-cookie';
 import { ProductFormData } from '../../types';
+import toast from 'react-hot-toast';
 
 interface ProductQueryParams {
   search?: string;
@@ -20,7 +21,14 @@ interface UpdateParams {
   updateData: Record<string, any>;
 
 }
-
+export interface ShippingAddress {
+  id?: number;
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+}
 
 
 export const getAuthToken = () => Cookies.get('access_token');
@@ -606,6 +614,102 @@ export const useBrowsingHistory = () => {
       });
       console.log('Fetched subcategory products:', data);
       return data?.data;
+    },
+  });
+};
+
+// GET all user shipping addresses
+export const useShippingAddresses = () => {
+  return useQuery<ShippingAddress[]>({
+    queryKey: ['user-shipping-address'],
+    queryFn: async () => {
+      const { data } = await api.get('/products/user-shipping-address/');
+      return data;
+    },
+  });
+};
+
+// GET a specific address by ID
+export const useShippingAddress = (id: number | string) => {
+  return useQuery<ShippingAddress>({
+    queryKey: ['user-shipping-address', id],
+    queryFn: async () => {
+      const { data } = await api.get(`/products/user-shipping-address/${id}/`);
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+// CREATE a new shipping address
+// export const useCreateShippingAddress = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async (data: Omit<ShippingAddress, 'id'>) => {
+//       const res = await api.post('/products/user-shipping-address/', data);
+//       return res.data;
+//     },
+//     onSuccess: () => {
+//       toast.success('Shipping address added!');
+//       queryClient.invalidateQueries(['user-shipping-address']);
+//     },
+//     onError: () => {
+//       toast.error('Failed to add shipping address.');
+//     },
+//   });
+// };
+
+// UPDATE full shipping address (PUT)
+export const useUpdateShippingAddress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, updatedData }: { id: number | string; updatedData: ShippingAddress }) => {
+      const res = await api.put(`/products/user-shipping-address/${id}/`, updatedData);
+      return res.data;
+    },
+    onSuccess: (_, { id }) => {
+      toast.success('Shipping address updated!');
+    },
+    onError: () => {
+      toast.error('Failed to update shipping address.');
+    },
+  });
+};
+
+// PARTIAL update (PATCH)
+export const usePatchShippingAddress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, patchData }: { id: number | string; patchData: Partial<ShippingAddress> }) => {
+      const res = await api.patch(`/products/user-shipping-address/${id}/`, patchData);
+      return res.data;
+    },
+    onSuccess: (_, { id }) => {
+      toast.success('Shipping address partially updated!');
+    },
+    onError: () => {
+      toast.error('Failed to partially update address.');
+    },
+  });
+};
+
+// DELETE shipping address
+export const useDeleteShippingAddress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: number | string) => {
+      await api.delete(`/products/user-shipping-address/${id}/`);
+      return id;
+    },
+    onSuccess: (deletedId) => {
+      toast.success('Shipping address deleted!');
+    },
+    onError: () => {
+      toast.error('Failed to delete shipping address.');
     },
   });
 };

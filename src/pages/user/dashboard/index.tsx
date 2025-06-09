@@ -6,6 +6,7 @@ import {
   Plane,
   ReceiptText,
   PackageOpen,
+  User,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { formatCurrency } from '../../../lib/utils';
@@ -13,7 +14,8 @@ import { DashboardSidebar } from '../../../components/user/dashboard/sidebar';
 import { useAuthStore } from '../../../lib/store/useAuthStore';
 import { useBrowsingHistory, useOrders } from '../../../lib/api/product';
 import { Modal } from '../../../components/ui/general-modal';
-import { useUpdateUser } from '../../../lib/api/auth';
+import { useProfilePic, useUpdateUser, useUploadProfilePic } from '../../../lib/api/auth';
+import { ProductSkeleton } from '../../../components/ui/ProductSkeleton';
 
 
 
@@ -48,6 +50,16 @@ export function Dashboard() {
   const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
   console.log("Orders:", orders);
   console.log("browsingHistory:", browsingHistory);
+  const { data: profilePicData } = useProfilePic();
+  const { mutate: uploadPic } = useUploadProfilePic();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadPic(file);
+  };
+
+  const profilePicUrl = profilePicData?.[0]?.profile_image;
+
 
   console.log("User:", user);
   const [formData, setFormData] = useState({
@@ -64,7 +76,7 @@ export function Dashboard() {
         first_name: user.first_name || '',
         last_name: user.last_name || '',
         email: user.email || '',
-        phone_number: user.phone_number|| '',
+        phone_number: user.phone_number || '',
         username: user.username || '',
       });
     }
@@ -75,10 +87,10 @@ export function Dashboard() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUpdateAccount = (e:any) => {
-      e.preventDefault();
-      updateUser(formData);
-      setEditAccountOpen(false);
+  const handleUpdateAccount = (e: any) => {
+    e.preventDefault();
+    updateUser(formData);
+    setEditAccountOpen(false);
   };
 
   const handleUpdateAddress = () => {
@@ -97,6 +109,8 @@ export function Dashboard() {
   const completedOrders = orders?.filter((order: { status: string; }) => order?.status === 'completed')?.length || 0;
 
   // console.log("Order statuses:", orders.map((o: any) => o.status));
+
+  if (!user) return <ProductSkeleton />;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -126,8 +140,12 @@ export function Dashboard() {
               </div>
             )} */}
             <div className="flex flex-col py-4">
-              <p className="text-2xl font-medium">Hello {user.username}</p>
-              <p className="text-black/50 font-light text-sm max-w-md">From your account dashboard. you can easily check & view your Recent Orders, manage your Shipping and Billing Addresses and edit your Password and Account Details.</p>
+              <p className="text-2xl font-medium">Hello {" "}
+                {(user?.first_name && user?.last_name)
+                  ? `${user.first_name} ${user.last_name}`
+                  : user?.username || 'User'}
+              </p>
+              <p className="text-black/50 font-light text-sm max-w-md py-2">From your account dashboard. you can easily check & view your Recent Orders, manage your Shipping and Billing Addresses and edit your Password and Account Details.</p>
             </div>
             <div className="grid gap-4">
 
@@ -140,14 +158,62 @@ export function Dashboard() {
                   <div className="h-px bg-gray-200 w-full"></div>
                   <div className="space-y-4 p-4">
                     <div className="flex items-center gap-4 mb-2">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-lg">
-                          {user.username.slice(0, 2)}
-                        </span>
+                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                        <div className="relative w-16 h-16">
+                          {/* Upload Label wraps the display */}
+                          <label htmlFor="profile-upload" className="block w-full h-full cursor-pointer">
+                            {profilePicUrl ? (
+                              // Show actual image if available
+                              <img
+                                src={profilePicUrl}
+                                alt="Profile"
+                                className="w-16 h-16 rounded-full object-cover"
+                              />
+                            ) : (
+                              // Show default user icon
+                              <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-2xl">
+                               <User />
+                              </div>
+                            )}
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 hover:opacity-100 transition" />
+
+                            {/* Edit Icon */}
+                            <div className="absolute bottom-0 right-0 bg-white rounded-full p-1 shadow-md">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-4 w-4 text-gray-700"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828A2 2 0 0110.414 16H7v-3.414a2 2 0 01.586-1.414z"
+                                />
+                              </svg>
+                            </div>
+                          </label>
+
+                          {/* Hidden File Input */}
+                          <input
+                            id="profile-upload"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden"
+                          />
+                        </div>
                       </div>
                       <div>
-                        <h2 className="font-semibold">{user.username}</h2>
-                        {/* <p className="text-sm text-gray-500">Lagos, Nigeria</p> */}
+                        <h2 className="font-semibold">
+                          {(user?.first_name && user?.last_name)
+                            ? `${user.first_name} ${user.last_name}`
+                            : user?.username || 'User'}
+                        </h2>
                       </div>
                     </div>
                     <div>
@@ -451,50 +517,76 @@ export function Dashboard() {
                 onClose={() => setEditAccountOpen(false)}
                 title="Edit Account Info"
               >
-                <form onSubmit={handleUpdateAccount}>
-                <div className="mb-4">
-                    <label className="block mb-1 text-sm font-medium">First name</label>
+                <form onSubmit={handleUpdateAccount} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">First Name</label>
                     <input
-                      defaultValue={user.first_name}
-                      className="w-full border px-3 py-2 rounded"
+                      type="text"
+                      name="first_name"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      className="w-full border rounded px-3 py-2"
+                      required
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block mb-1 text-sm font-medium">Last name</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
                     <input
-                      defaultValue={user.last_name}
-                      className="w-full border px-3 py-2 rounded"
+                      type="text"
+                      name="last_name"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      className="w-full border rounded px-3 py-2"
+                      required
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block mb-1 text-sm font-medium">Phone number</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Email</label>
                     <input
-                      defaultValue={user.phone_number}
-                      className="w-full border px-3 py-2 rounded"
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full border rounded px-3 py-2"
+                      required
                     />
                   </div>
-                  
-                  
-                  <div className="mb-4">
-                    <label className="block mb-1 text-sm font-medium">Email</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                     <input
-                      defaultValue={user.email}
-                      className="w-full border px-3 py-2 rounded"
+                      type="tel"
+                      name="phone_number"
+                      value={formData.phone_number}
+                      onChange={handleChange}
+                      className="w-full border rounded px-3 py-2"
+                      required
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block mb-1 text-sm font-medium">Username</label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Username</label>
                     <input
-                      defaultValue={user.username}
-                      className="w-full border px-3 py-2 rounded"
+                      type="text"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      className="w-full border rounded px-3 py-2"
+                      required
                     />
                   </div>
-                  <Button type="submit" disabled={isUpdatingUser}>Save</Button>
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      type="submit"
+                      disabled={isUpdatingUser}
+                      className="bg-primary text-white px-4 py-2 rounded"
+                    >
+                      {isUpdatingUser ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
                 </form>
               </Modal>
 
               {/* Edit Address Modal */}
-              {/* <Modal
+              <Modal
                 isOpen={editAddressOpen}
                 onClose={() => setEditAddressOpen(false)}
                 title="Edit Billing Address"
@@ -516,11 +608,11 @@ export function Dashboard() {
                   </div>
                   <Button type="submit">Save</Button>
                 </form>
-              </Modal> */}
+              </Modal>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
