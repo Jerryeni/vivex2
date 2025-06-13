@@ -4,7 +4,7 @@ import { useBlogPosts } from '../../lib/api/blog';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 
 export const Blog: React.FC = () => {
-  const { data: posts, isLoading, error } = useBlogPosts(null); // Fetch latest blogs
+  const { data: posts, isLoading, error } = useBlogPosts(); // Fetch latest blogs
 
   console.log('Blog posts:', posts);
 
@@ -31,7 +31,7 @@ export const Blog: React.FC = () => {
               <h3 className="font-semibold mb-2">{post.title}</h3>
               <p className="text-gray-600 text-sm mb-4 line-clamp-2">{post.content}</p>
               <Link 
-                to={`/blog/${post.id}`}
+                to={`/blog/${post.slug}`}
                 className="text-orange-500 text-sm hover:underline"
               >
                 READ MORE →
