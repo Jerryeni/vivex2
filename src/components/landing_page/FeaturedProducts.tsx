@@ -152,8 +152,123 @@
 //   );
 // };
 
+// import React, { useState, useMemo } from 'react';
+// import { Eye, Heart, ShoppingCart, Star } from 'lucide-react';
+// import { Link } from 'react-router-dom';
+// import TimerCard from '../ui/time-card';
+// import { Product } from '../../types';
+// import { useCart } from '../../context/CartContext';
+// import { useCategories, useFeaturedProducts } from '../../lib/api/product';
+// import { LoadingSpinner } from '../ui/LoadingSpinner';
+// import { ProductSkeleton } from '../ui/ProductSkeleton';
+// import { ProductCard } from '../ui/ProductCard';
+
+// export const FeaturedProducts: React.FC = () => {
+//   const { dispatch } = useCart();
+//   const { data, isLoading, error } = useFeaturedProducts();
+//   const { data: categories } = useCategories();
+//   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
+//   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+//   if (isLoading) return <LoadingSpinner />;
+//   if (error) return <p className='text-center'>Failed to load featured products.</p>;
+
+//   const products: Product[] = Array.isArray(data?.data)
+//     ? data.data.filter((p: Product) => p.is_featured).slice(0, 8)
+//     : [];
+
+//   const filteredProducts = selectedCategory
+//     ? products.filter((p) => p.category?.name === selectedCategory)
+//     : products;
+
+//   const addToCart = (product: Product) => {
+//     // dispatch({ type: 'ADD_TO_CART', payload: product });
+//   };
+
+//   // Filter categories to only those that have at least one featured product
+//   const filteredCategories = useMemo(() => {
+//     if (!categories) return [];
+//     const categoryNamesWithFeatured = new Set(products.map((p) => p.category?.name));
+//     return categories.filter((cat: any) => categoryNamesWithFeatured.has(cat.name));
+//   }, [categories, products]);
+
+//   return (
+//     <section className="flex flex-col lg:flex-row gap-3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+//       <div className="lg:w-[30%] w-full space-y-4">
+//         <TimerCard />
+//         <div className="bg-blue-900 text-white p-6 rounded">
+//           <h3 className="text-xl font-bold mb-2">37% DISCOUNT</h3>
+//           <p className="mb-4">Only for SmartPhone product.</p>
+//           <button className="bg-[#2DA5F3] text-white px-4 py-2 rounded">
+//             SHOP NOW →
+//           </button>
+//         </div>
+//       </div>
+
+//       <div className="w-full lg:w-[70%]">
+//         <div className="flex relative flex-col lg:flex-row justify-between gap-3 w-full h-fit items-center mb-4">
+//           <h2 className="text-xl font-medium w-full md:w-[30%] h-fit">Featured Products</h2>
+//           <div className="flex gap-3 overflow-x-auto h-fit w-full md:w-[80%] place-content-end items-end">
+//             <button
+//               onClick={() => setSelectedCategory(null)}
+//               className={`whitespace-nowrap h-fit px-2 text-xs ${
+//                 selectedCategory === null
+//                   ? 'text-orange-500 border-b-2 border-orange-500'
+//                   : 'text-gray-600'
+//               }`}
+//             >
+//               All
+//             </button>
+//             {filteredCategories.map((category: any, index: number) => (
+//               <button
+//                 key={index}
+//                 onClick={() => setSelectedCategory(category.name)}
+//                 className={`whitespace-nowrap h-fit px-2 text-xs ${
+//                   selectedCategory === category.name
+//                     ? 'font-bold border-b-2 border-orange-500'
+//                     : 'text-gray-600'
+//                 }`}
+//               >
+//                 {category.name}
+//               </button>
+//             ))}
+//             <Link
+//             to="/products"
+//             className="absolutex right-2x md:-top-4x md:block text-orange-500 h-fit text-xs w-fit hover:underline"
+//           >
+//             Browse All Product →
+//           </Link>
+//           </div>
+          
+//         </div>
+
+//         {isLoading ? (
+//           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+//             {[...Array(9)].map((_, i) => (
+//               <ProductSkeleton key={i} />
+//             ))}
+//           </div>
+//         ) : (
+//           <div className="flex w-full gap-2 overflow-x-auto">
+//             <div className="col-span-3 grid grid-cols-2 sm:grid-cols-2 w-full lg:grid-cols-4 gap-4">
+//               {filteredProducts.length > 0 ? (
+//                 filteredProducts.map((product) => (
+//                   <ProductCard key={product.id} product={product} compact/>
+//                 ))
+//               ) : (
+//                 <p className="text-gray-500 col-span-4">
+//                   No products found for this category.
+//                 </p>
+//               )}
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </section>
+//   );
+// };
+
 import React, { useState, useMemo } from 'react';
-import { Eye, Heart, ShoppingCart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TimerCard from '../ui/time-card';
 import { Product } from '../../types';
@@ -170,12 +285,15 @@ export const FeaturedProducts: React.FC = () => {
   const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  if (isLoading) return <LoadingSpinner />;
-  if (error) return <p className='text-center'>Failed to load featured products.</p>;
-
   const products: Product[] = Array.isArray(data?.data)
     ? data.data.filter((p: Product) => p.is_featured).slice(0, 8)
     : [];
+
+  const filteredCategories = useMemo(() => {
+    if (!categories) return [];
+    const categoryNamesWithFeatured = new Set(products.map((p) => p.category?.name));
+    return categories.filter((cat: any) => categoryNamesWithFeatured.has(cat.name));
+  }, [categories, products]);
 
   const filteredProducts = selectedCategory
     ? products.filter((p) => p.category?.name === selectedCategory)
@@ -185,12 +303,8 @@ export const FeaturedProducts: React.FC = () => {
     // dispatch({ type: 'ADD_TO_CART', payload: product });
   };
 
-  // Filter categories to only those that have at least one featured product
-  const filteredCategories = useMemo(() => {
-    if (!categories) return [];
-    const categoryNamesWithFeatured = new Set(products.map((p) => p.category?.name));
-    return categories.filter((cat: any) => categoryNamesWithFeatured.has(cat.name));
-  }, [categories, products]);
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <p className="text-center">Failed to load featured products.</p>;
 
   return (
     <section className="flex flex-col lg:flex-row gap-3 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -233,36 +347,27 @@ export const FeaturedProducts: React.FC = () => {
               </button>
             ))}
             <Link
-            to="/products"
-            className="absolutex right-2x md:-top-4x md:block text-orange-500 h-fit text-xs w-fit hover:underline"
-          >
-            Browse All Product →
-          </Link>
+              to="/products"
+              className="absolutex right-2x md:-top-4x md:block text-orange-500 h-fit text-xs w-fit hover:underline"
+            >
+              Browse All Product →
+            </Link>
           </div>
-          
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(9)].map((_, i) => (
-              <ProductSkeleton key={i} />
-            ))}
+        <div className="flex w-full gap-2 overflow-x-auto">
+          <div className="col-span-3 grid grid-cols-2 sm:grid-cols-2 w-full lg:grid-cols-4 gap-4">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} compact />
+              ))
+            ) : (
+              <p className="text-gray-500 col-span-4">
+                No products found for this category.
+              </p>
+            )}
           </div>
-        ) : (
-          <div className="flex w-full gap-2 overflow-x-auto">
-            <div className="col-span-3 grid grid-cols-2 sm:grid-cols-2 w-full lg:grid-cols-4 gap-4">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} compact/>
-                ))
-              ) : (
-                <p className="text-gray-500 col-span-4">
-                  No products found for this category.
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </section>
   );
