@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Logo from '../../assets/icons/Logo.png';
+import Logo from '../../assets/icons/Logo.svg';
 import { 
   LayoutDashboard, 
   Package, 
@@ -98,14 +98,14 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-[#1F2937] text-white h-screen flex flex-col">
-      <div className="p-4 border-b border-gray-700">
-        <Link to="/" className="flex items-center space-x-2">
+    <aside className="w-64  text-white h-screen bg-transparent flex flex-col">
+      <div className="p-4 border-b border-gray-700 text-black">
+        <Link to="/" className="flex items-center space-x-2 bg-transparent">
           <img src={Logo} alt="Vivian's Store" className="h-10" />
         </Link>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-1 bg-[#1F2937]">
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between text-gray-400 hover:text-white cursor-pointer">
@@ -121,8 +121,8 @@ export const Sidebar = () => {
                   <div key={link.path}>
                     <Link
                       to={link.path}
-                      className={`flex items-center justify-between p-3 rounded-lg ${
-                        isActive ? 'bg-blue-600' : 'hover:bg-gray-700'
+                      className={`flex items-center justify-between p-3 rounded-lg text-white/40 ${
+                        isActive ? 'text-white' : 'hover:bg-gray-700'
                       }`}
                       onClick={(e) => {
                         if (link.hasSubmenu) {
@@ -148,9 +148,9 @@ export const Sidebar = () => {
                           <Link
                             key={subItem.path}
                             to={subItem.path}
-                            className={`flex items-center space-x-3 p-3 rounded-lg ${
+                            className={`flex items-center space-x-3 p-3 rounded-lg text-white/40 ${
                               location.pathname === subItem.path
-                                ? 'bg-blue-600'
+                                ? 'text-white'
                                 : 'hover:bg-gray-700'
                             }`}
                           >

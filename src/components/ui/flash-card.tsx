@@ -15,7 +15,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({ imageSrc, imageAlt, title,
         <img src={imageSrc} alt={imageAlt} className='w-20 h-10' />
       </div>
       <div className="flex flex-col w-full">
-        <p className='font-light text-xs'>{title}</p>
+        <p className='font-light text-xs line-clamp-1'>{title}</p>
         <p className="text-blue-400">{formatCurrency(Number(price))}</p>
       </div>
     </div>

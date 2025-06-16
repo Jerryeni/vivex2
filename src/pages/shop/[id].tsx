@@ -10,12 +10,14 @@ import { useAuthStore } from "../../lib/store/useAuthStore";
 import toast from "react-hot-toast";
 import Cookies from "js-cookie";
 import { ModalAuth } from "../../components/ui/LoginSignupModal";
-import { formatCurrency } from "../../lib/utils";
+import { cn, formatCurrency } from "../../lib/utils";
 import HeroNav from "../../components/layout/HeroNav";
-import { Breadcrumb } from "../../components/ui/Breadcrumb";
+// import { Breadcrumb } from "../../components/ui/Breadcrumb";
 import { FlashCard } from "../../components/ui/flash-card";
+import { Breadcrumb } from "../../components/Breadcrumb";
 
 const userId = Cookies.get("userId");
+const tabs = ["DESCRIPTION", "ADDITIONAL INFORMATION", "SPECIFICATION", "REVIEW"];
 
 export const ProductDetails = () => {
   const { id } = useParams();
@@ -29,6 +31,9 @@ export const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariation, setSelectedVariation] = useState<any>(null);
   const [liked, setLiked] = useState(false);
+
+
+
 
   const isLoggedIn = !!Cookies.get("access_token");
 
@@ -118,18 +123,46 @@ export const ProductDetails = () => {
     ?.filter((p: any) => p.category?.id === productData.category?.id && p.id !== productData.id)
     .slice(0, 4) || [];
 
-    const breadcrumbItems = [
-      { label: 'products', href: '/products' },
-      { label: product || 'All Products' },
-    ];
+  const featuredProducts = allProducts.results
+  ?.filter((p: any) =>
+    p.is_featured === true &&
+    p.category?.id === productData.category?.id &&
+    p.id !== productData.id
+  )
+  .slice(0, 4) || [];
+
+  const computingProducts = allProducts.results
+  ?.filter((p: any) =>
+    p.category?.name?.toLowerCase() === "computing"
+  )
+  .slice(0, 4) || [];
+
+  const appleProducts = allProducts.results
+  ?.filter((p: any) =>
+    p.brand?.toLowerCase() === "apple"
+  )
+  .slice(0, 4) || [];
+
+  // const breadcrumbItems = [
+  //   { label: 'products', href: '/products' },
+  //   { label: product || 'All Products' },
+  // ];
+  const breadcrumbItems = [
+    { label: 'products', href: '/products' },
+    { label: product || 'All Products' },
+  ];
+
+  const [activeTab, setActiveTab] = useState("DESCRIPTION");
 
   return (
     <>
       <div className="min-h-screen bg-gray-50">
-        {/* <Breadcrumb items={breadcrumbItems} /> */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <HeroNav />
-          
+          <HeroNav />
+          {/* <Breadcrumb items={breadcrumbItems} /> */}
+
+          {/* Product Details */}
+
           <div className="rounded p-6 mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Image Viewer */}
@@ -194,9 +227,23 @@ export const ProductDetails = () => {
                   )}
                 </div>
                 <div className="h-px bg-gray-400/40 my-4"></div>
-                <div className="flex flex-col">
-                  <span>Color</span>
-                  <div className="rounded-full"></div>
+                <div className="flex flex-col my-3">
+                  <div className="mt-3 space-y-2">
+                    {productData?.variations?.length > 0 ? (
+                      productData.variations.map((variation: { id: any; color: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; size: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; quantity: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }, idx: any) => (
+                        <div
+                          key={variation.id || idx}
+                          className="borderx p-3 rounded-md xbg-gray-50 flex items-center justify-between text-sm text-gray-800"
+                        >
+                          <div className="flex items-center space-x-2"><strong>Color:</strong> <span className={`rounded-full w-8 h-8 inline-block mr-1 bg-${variation.color}-400`}></span> {variation.color}</div>
+                          <div><strong>Size:</strong> {variation.size}</div>
+                          <div><strong>Qty:</strong> {variation.quantity}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500">No variations available.</p>
+                    )}
+                  </div>
                 </div>
 
                 {defaultVariation ? (
@@ -211,7 +258,7 @@ export const ProductDetails = () => {
                       </button>
                     </div>
                     <button onClick={handleAddToCart} className="flex-1 bg-orange-500 text-white px-6 py-4 rounded hover:bg-orange-600 transition-colors flex justify-center gap-2">
-                      ADD TO CART 
+                      ADD TO CART
                       <span><ShoppingCart /></span>
                     </button>
                     <button onClick={toggleWishlist} className={`px-4 py-3 border rounded-md hover:bg-gray-50 ${liked ? "text-red-500" : "text-gray-400"}`}>
@@ -222,31 +269,199 @@ export const ProductDetails = () => {
                   <div className="text-red-500 font-semibold mt-4">Out of Stock</div>
                 )}
               </div>
+
+
+            </div>
+          </div>
+
+          {/* product description */}
+          <div className="mt-10 mx-auto border rounded-md w-full">
+            <div className=" items-center flex justify-center border-b overflow-x-auto">
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  className={cn(
+                    "px-4 py-3 text-sm font-medium  whitespace-nowrap",
+                    activeTab === tab
+                      ? "border-b-2 border-orange-500 text-orange-600"
+                      : "text-gray-500 hover:text-orange-500"
+                  )}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+              {/* Main Content */}
+              <div className="md:col-span-2">
+                {activeTab === "DESCRIPTION" && (
+                  <>
+                    <h3 className="font-semibold mb-3">Description</h3>
+                    <p className="text-sm text-gray-700 leading-relaxed line-clamp-6">
+                      {productData?.description || "No description available."}
+                    </p>
+                  </>
+                )}
+                {activeTab === "ADDITIONAL INFORMATION" && (
+                  <>
+                    <h3 className="font-semibold mb-3">Additional Information</h3>
+                    <ul className="text-sm text-gray-700 space-y-2 list-disc ml-5">
+                      <li>Brand: {productData?.brand}</li>
+                      <li>Category: {productData?.category?.name}</li>
+                      <li>Available Variations:</li>
+                    </ul>
+                    <div className="mt-3 space-y-2">
+                      {productData?.variations?.length > 0 ? (
+                        productData.variations.map((variation: { id: any; color: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; size: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; quantity: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }, idx: any) => (
+                          <div
+                            key={variation.id || idx}
+                            className="border p-3 rounded-md bg-gray-50 flex items-center justify-between text-sm text-gray-800"
+                          >
+                            <div className="flex items-center space-x-2"><strong>Color:</strong> <span className={`rounded-full w-8 h-8 inline-block mr-1 bg-${variation.color}-500`}></span> {variation.color}</div>
+                            <div><strong>Size:</strong> {variation.size}</div>
+                            <div><strong>Qty:</strong> {variation.quantity}</div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500">No variations available.</p>
+                      )}
+                    </div>
+                  </>
+                )}
+                {activeTab === "SPECIFICATION" && (
+                  <>
+                    <h3 className="font-semibold mb-3">Specification</h3>
+                    <p className="text-sm text-gray-700">
+                      {product?.specification || "Specifications not provided."}
+                    </p>
+                  </>
+                )}
+                {activeTab === "REVIEW" && (
+                  <>
+                    <h3 className="font-semibold mb-3">Customer Reviews</h3>
+                    <p className="text-sm text-gray-700">
+                      {product?.reviews || "No reviews yet."}
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* Side Section */}
+              <div className="flex gap-2 md:col-span-2">
+                <div className="px-4">
+                  <h4 className="font-semibold mb-3">Feature</h4>
+                  <ul className="text-sm text-gray-700 space-y-2">
+                    <li>✅ Free 1 Year Warranty</li>
+                    <li>🚚 Free Shipping & Fast Delivery</li>
+                    <li>💰 100% Money-back guarantee</li>
+                    <li>📞 24/7 Customer support</li>
+                    <li>🔐 Secure payment method</li>
+                  </ul>
+                </div>
+
+
+                <div className="border-l px-4">
+                  <h4 className="font-semibold mb-2">Shipping Information</h4>
+                  <ul className="text-sm text-gray-700 space-y-1">
+                    <li><strong>Courier:</strong> 2–4 days, free shipping</li>
+                    <li><strong>Local Shipping:</strong> up to one week, $19.00</li>
+                    <li><strong>UPS:</strong> 4–6 days, $29.00</li>
+                    <li><strong>Global Export:</strong> 3–4 days, $39.00</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Related Products */}
-          <div className="grid grid-cols-2"></div>
-          <div className="mt-12">
-            <h2 className="text-xl font-medium mb-6">Related Products</h2>
-            <div className="grid grid-cols-1 w-fit gap-6">
-              {isRelatedLoading ? (
-                <p>Loading related products...</p>
-              ) : relatedProducts.length > 0 ? (
-                relatedProducts.map((relatedProduct: any) => (
-                  <FlashCard 
-                  key={relatedProduct.id}
-                  imageSrc={relatedProduct.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
-                  imageAlt={relatedProduct.name}
-                  title={relatedProduct.name}
-                  price={relatedProduct.price}
-                  />
-                ))
-              ) : (
-                <p>No related products found.</p>
-              )}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-12">
+            <div className="mt-12">
+              <h2 className="text-lg font-medium mb-6 uppercase">Related Products</h2>
+              <div className="grid grid-cols-1 w-fit gap-6">
+                {isRelatedLoading ? (
+                  <p>Loading related products...</p>
+                ) : relatedProducts.length > 0 ? (
+                  relatedProducts.map((relatedProduct: any) => (
+                    <FlashCard
+                      key={relatedProduct.id}
+                      imageSrc={relatedProduct.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+                      imageAlt={relatedProduct.name}
+                      title={relatedProduct.name}
+                      price={relatedProduct.price}
+                    />
+                  ))
+                ) : (
+                  <p>No related products found.</p>
+                )}
+              </div>
+            </div>
+           
+            <div className="mt-12">
+              <h2 className="text-lg font-medium mb-6 uppercase">Product Accessories</h2>
+              <div className="grid grid-cols-1 w-fit gap-6">
+                {isRelatedLoading ? (
+                  <p>Loading related products...</p>
+                ) : computingProducts.length > 0 ? (
+                  computingProducts.map((relatedProduct: any) => (
+                    <FlashCard
+                      key={relatedProduct.id}
+                      imageSrc={relatedProduct.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+                      imageAlt={relatedProduct.name}
+                      title={relatedProduct.name}
+                      price={relatedProduct.price}
+                    />
+                  ))
+                ) : (
+                  <p>No related products found.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-12">
+              <h2 className="text-lg font-medium mb-6 uppercase">Apple Products</h2>
+              <div className="grid grid-cols-1 w-fit gap-6">
+                {isRelatedLoading ? (
+                  <p>Loading related products...</p>
+                ) : appleProducts.length > 0 ? (
+                  appleProducts.map((relatedProduct: any) => (
+                    <FlashCard
+                      key={relatedProduct.id}
+                      imageSrc={relatedProduct.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+                      imageAlt={relatedProduct.name}
+                      title={relatedProduct.name}
+                      price={relatedProduct.price}
+                    />
+                  ))
+                ) : (
+                  <p>No related products found.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-12">
+              <h2 className="text-lg font-medium mb-6 uppercase">Featured Products</h2>
+              <div className="grid grid-cols-1 w-fit gap-6">
+                {isRelatedLoading ? (
+                  <p>Loading related products...</p>
+                ) : featuredProducts.length > 0 ? (
+                  featuredProducts.map((relatedProduct: any) => (
+                    <FlashCard
+                      key={relatedProduct.id}
+                      imageSrc={relatedProduct.images?.[0]?.image_url || 'https://via.placeholder.com/150'}
+                      imageAlt={relatedProduct.name}
+                      title={relatedProduct.name}
+                      price={relatedProduct.price}
+                    />
+                  ))
+                ) : (
+                  <p>No related products found.</p>
+                )}
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 

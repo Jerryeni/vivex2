@@ -102,13 +102,13 @@ export const AdminDashboard = () => {
   const { data: orders, isLoading: ordersLoading, error: ordersError } = useOrders();
   console.log("Orders:", orders);
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50x">
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
 
         {/* Welcome Banner */}
         <div className="p-6">
-          <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-lg mb-6">
+          <div className="bg-yellow-50 bg-orange-100 px-4 py-2 w-[50%] rounded-lg mb-6">
             <p>Welcome to our admin dashboard!!!!</p>
           </div>
 
@@ -117,7 +117,7 @@ export const AdminDashboard = () => {
             {stats.map((stat, index) => (
               <div key={index} className="bg-white  rounded-lg shadow-sm">
                 <div className="flex items-center p-6 justify-between mb-4">
-                  <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <div className="h-12 w-12  rounded-lg flex items-center justify-center">
                     <Package className="h-6 w-6 text-orange-500" />
                     
                   </div>
