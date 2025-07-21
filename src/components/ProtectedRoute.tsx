@@ -25,7 +25,7 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     const userRole = user.is_vendor ? 'vendor' : 'user';
 
     if (!allowedRoles.includes(userRole)) {
-      const redirectPath = user.is_vendor ? '/admin/dashboard' : '/user';
+      const redirectPath = user.is_vendor ? '/vendor' : '/user';
       return <Navigate to={redirectPath} replace />;
     }
   }

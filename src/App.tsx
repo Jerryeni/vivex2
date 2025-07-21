@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
@@ -49,6 +49,15 @@ import { useAuthStore } from './lib/store/useAuthStore';
 import api from './lib/axios';
 import Cookies from 'js-cookie';
 import CategoryPage from './pages/shop/category';
+import VendorLayout from './components/vendor/layout/VendorLayout';
+import MyStores from './pages/vendor/MyStores';
+import SampleDashboard from './pages/vendor/Dashboard';
+import CreateStoreForm from './components/vendor/CreateStoreForm';
+import ProductsList from './components/vendor/ProductsList';
+import ProductForm from './components/vendor/ProductForm';
+import MyProducts from './pages/vendor/MyProducts';
+import ProfileSettings from './pages/vendor/ProfileSettings';
+import BusinessDocs from './pages/vendor/BusinessDocs';
 // import ProductsPage from './pages/shop';
 
 // Admin Pages (Lazy Load)
@@ -67,6 +76,7 @@ const queryClient = new QueryClient();
 function Layout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isVendorRoute = location.pathname.startsWith('/vendor');
   const { setAuth, logout } = useAuthStore();
 
   useEffect(() => {
@@ -91,7 +101,8 @@ function Layout() {
 
   return (
     <div className="min-h-screen bg-white">
-      {!isAdminRoute && <Header />} {/* Render header only if not in admin routes */}
+      {!isAdminRoute && !isVendorRoute && <Header />} {/* Render header only if not in admin routes */}
+      {/* {!isVendorRoute && <Header />} Render header only if not in admin routes */}
       <Suspense fallback={<LoadingSpinner />}>
         <main className="flex-1 bg-white relative">
           <Routes>
@@ -132,11 +143,11 @@ function Layout() {
             <Route element={<ProtectedRoute allowedRoles={['user']} />}>
               <Route path="/user" element={<Dashboard />} />
               <Route path="/user/orders" element={<Orders />} />
-              <Route path="/user/orders/:id" element={<OrderDetails  />} />
+              <Route path="/user/orders/:id" element={<OrderDetails />} />
               <Route path="/user/wishlist" element={<Wishlist />} />
-              <Route path="/user/cards" element={<Cards  />} />
+              <Route path="/user/cards" element={<Cards />} />
               <Route path="/user/history" element={<History />} />
-              <Route path="/user/settings" element={<Settings  />} />
+              <Route path="/user/settings" element={<Settings />} />
             </Route>
 
             {/* Admin Routes */}
@@ -155,6 +166,21 @@ function Layout() {
                 <Route path="orders" element={<OrderList />} />
                 <Route path="orders/:id" element={<OrderDetailss />} />
               </Route>
+            </Route>
+
+            {/* Vendor Routes */}
+            <Route path="/vendor" element={<VendorLayout />}>
+              <Route index element={<Navigate to="/vendor/dashboard" replace />} />
+              <Route path="dashboard" element={<SampleDashboard />} />
+              <Route path="stores" element={<MyStores />} />
+              <Route path="stores/create" element={<CreateStoreForm />} />
+              <Route path="stores/:storeId/products" element={<ProductsList />} />
+              <Route path="stores/:storeId/products/create" element={<ProductForm />} />
+              <Route path="stores/:storeId/products/:productId/edit" element={<ProductForm />} />
+              <Route path="products" element={<MyProducts />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="profile" element={<ProfileSettings />} />
+              <Route path="business-docs" element={<BusinessDocs />} />
             </Route>
 
 
@@ -181,7 +207,8 @@ function Layout() {
           </Routes>
         </main>
       </Suspense>
-      {!isAdminRoute && <Footer />} {/* Render footer only if not in admin routes */}
+      {!isAdminRoute && !isVendorRoute && <Footer />} {/* Render footer only if not in admin routes */}
+      {/* {!isVendorRoute && <Footer />} Render footer only if not in admin routes */}
     </div>
   );
 }

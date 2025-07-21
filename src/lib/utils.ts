@@ -36,3 +36,12 @@ export function debounce<T extends (...args: any[]) => void>(
 // utils/slugify.ts
 export const slugify = (text: string) =>
   text.toLowerCase().replace(/\s+/g, '-');
+
+// utils.ts
+
+export const getImageSrc = (image: any): string => {
+  if (image?.base64_product_image) {
+    return `data:image/jpeg;base64,${image.base64_product_image}`;
+  }
+  return image?.image_url || "https://via.placeholder.com/400";
+};

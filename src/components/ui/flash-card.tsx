@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatCurrency } from '../../lib/utils';
+import { OptimizedImage } from './OptimizedImage';
 
 interface FlashCardProps {
   imageSrc: string;
@@ -12,7 +13,7 @@ export const FlashCard: React.FC<FlashCardProps> = ({ imageSrc, imageAlt, title,
   return (
     <div className="border w-full p-3 flex items-center gap-3">
       <div className="">
-        <img src={imageSrc} alt={imageAlt} className='w-20 h-10' />
+        <OptimizedImage src={imageSrc} alt={imageAlt} className='w-20 h-10' />
       </div>
       <div className="flex flex-col w-full">
         <p className='font-light text-xs line-clamp-1'>{title}</p>

@@ -32,7 +32,10 @@ export interface Product {
   is_new_arrival: boolean;
   is_flash_sale: boolean;
   is_best_seller: boolean;
-  images: { id: number; image_url: string }[];
+  images: {
+    is_display_photo: unknown;
+    base64_product_image: any; id: number; image_url: string 
+}[];
   variations: ProductVariation[];
   category: Category;
   subcategory: Subcategory;
