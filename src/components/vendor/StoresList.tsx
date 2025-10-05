@@ -2,9 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Store, MapPin, Package, Edit, Plus } from 'lucide-react';
 import { useVendorStores } from '../../lib/hooks/useVendorQueries';
+import { OptimizedImage } from '../ui/OptimizedImage';
 
 const StoresList: React.FC = () => {
   const { data: stores, isLoading, error } = useVendorStores();
+
+  console.log(stores);
 
   if (isLoading) {
     return (
@@ -36,12 +39,13 @@ const StoresList: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stores?.data?.data.map((store: { id: React.Key | null | undefined; name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; isActive: any; description: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; address: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }) => (
+        {stores?.data?.data.map((store: any) => (
           <div key={store.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                  <Store className="h-5 w-5 text-blue-600" />
+                <div className="w-10 h-10 bg-primary-100x rounded-lg flex items-center justify-center">
+                  <OptimizedImage src={store?.store_logo} alt={store?.name} containerClassName="w-10 h-10" />
+                  {/* <Store className="h-5 w-5 text-blue-600" /> */}
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">{store.name}</h3>
@@ -69,13 +73,13 @@ const StoresList: React.FC = () => {
                 <Package className="h-4 w-4" />
                 <span>Products</span>
               </Link>
-              <Link
+              {/* <Link
                 to={`/vendor/stores/${store.id}/edit`}
                 className="flex-1 bg-primary-100 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-primary-100 transition-colors flex items-center justify-center space-x-1"
               >
                 <Edit className="h-4 w-4" />
                 <span>Edit</span>
-              </Link>
+              </Link> */}
             </div>
           </div>
         ))}

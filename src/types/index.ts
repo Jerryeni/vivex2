@@ -43,6 +43,7 @@ export interface Product {
   remove_image_ids: number[];
   average_rating?: number;
   reviews?: number;
+  brand?: string;
 }
 
 export interface ProductVariation {

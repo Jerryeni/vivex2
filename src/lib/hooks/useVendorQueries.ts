@@ -33,6 +33,13 @@ export const useStoreProducts = (storeId: string) => {
   });
 };
 
+export const useProducts = () => {
+  return useQuery({
+    queryKey: ['vendor', 'stores', 'products'],
+    queryFn: () => vendorApi.getProducts(),
+  });
+};
+
 export const useProduct = (storeId: string, productId: string, options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ['vendor', 'stores', storeId, 'products', productId],
@@ -52,7 +59,7 @@ export const useCreateProduct = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ storeId, data }: { storeId: string; data: CreateProductData }) =>
+    mutationFn: ({ storeId, data }: { storeId: any; data: CreateProductData }) =>
       vendorApi.createProduct(storeId, data),
     onSuccess: (_, { storeId }) => {
       queryClient.invalidateQueries({ queryKey: ['vendor', 'stores', storeId, 'products'] });
@@ -95,3 +102,51 @@ export const useUpdateProfile = () => {
     },
   });
 };
+
+// Add these hooks to your existing vendor hooks file
+
+export const useBusinessDoc = () => {
+  return useQuery({
+    queryKey: ['vendor', 'business-doc'],
+    queryFn: () => vendorApi.getBusinessDoc(),
+  });
+};
+
+export const useCreateBusinessDoc = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: FormData) => vendorApi.createBusinessDoc(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor', 'business-doc'] });
+    },
+    onError: (error) => {
+      console.error('Failed to create business document:', error);
+    },
+  });
+};
+
+export const useUpdateBusinessDoc = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: FormData) => vendorApi.updateBusinessDoc(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor', 'business-doc'] });
+    },
+    onError: (error) => {
+      console.error('Failed to update business document:', error);
+    },
+  });
+};
+
+// export const useDeleteBusinessDoc = () => {
+//   const queryClient = useQueryClient();
+//   return useMutation({
+//     mutationFn: (id: string) => vendorApi.deleteBusinessDoc(id), // You may need to add this to your API
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['vendor', 'business-doc'] });
+//     },
+//     onError: (error) => {
+//       console.error('Failed to delete business document:', error);
+//     },
+//   });
+// };

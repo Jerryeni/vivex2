@@ -4,6 +4,7 @@ import useCartStore from "../../../lib/store/useCartStore";
 import toast from "react-hot-toast";
 import HeroNav from "../../../components/layout/HeroNav";
 import { formatCurrency } from "../../../lib/utils";
+import { OptimizedImage } from "../../../components/ui/OptimizedImage";
 
 const breadcrumbItems = [
     { label: "Cart" },
@@ -75,10 +76,11 @@ const CartPage: React.FC = () => {
                                             <button onClick={() => removeFromCart(item.id)} className="text-red-500 mr-2 border px-2 rounded-full">
                                                 x
                                             </button>
-                                            <img
-                                                src={item.product?.images.length > 0 ? item.product?.images[0].image_url : "/placeholder.jpg"}
+                                            <OptimizedImage
+                                                src={item.product?.images[0].base64_product_image}
                                                 alt={item.product?.name}
                                                 className="w-16 h-10 mr-2"
+                                                containerClassName="w-16 h-10 mr-2"
                                             />
                                             <div>
                                                 <h3 className="text-sm">{item.product?.name}</h3>

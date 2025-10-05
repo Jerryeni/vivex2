@@ -65,6 +65,8 @@ export const vendorApi = {
   // Product endpoints
   getStoreProducts: (storeId: string) => 
     api.get<ApiResponse<Product[]>>(`/vendor/stores/${storeId}/products-in-store/`),
+  getProducts: () => 
+    api.get<ApiResponse<Product[]>>(`/vendor/stores/vendor-products/`),
   getProduct: (storeId: string, productId: string) => 
     api.get<ApiResponse<Product>>(`/vendor/stores/${storeId}/products/${productId}/`),
   createProduct: (storeId: string, data: CreateProductData) => 
@@ -75,7 +77,7 @@ export const vendorApi = {
     api.delete(`/vendor/stores/${storeId}/products/${productId}/delete/`),
   
   // Order endpoints
-  getOrders: () => api.get<ApiResponse<VendorOrder[]>>('/vendor/orders/vendor-orders/'),
+  getOrders: () => api.get<ApiResponse<VendorOrder[]>>('/vendor/my-orders/orders/'),
   getOrder: (id: string) => api.get<ApiResponse<VendorOrder>>(`/vendor/orders/vendor-orders/${id}/`),
   
   // Vendor list endpoint

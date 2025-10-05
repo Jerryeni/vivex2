@@ -28,6 +28,22 @@ export interface ShippingAddress {
   state: string;
   postal_code: string;
   country: string;
+  is_default: boolean;
+}
+
+interface Address {
+  id?: number;
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  is_default?: boolean;
+}
+export interface Subcategory {
+  id: number;
+  name: string;
+  description?: string | null;
 }
 
 
@@ -395,12 +411,12 @@ export const useDeleteSubcategory = () => {
 //     },
 //   });
 // };
-export const useSubcategoriesByCategory = (categoryId: string | null) => {
+export const useSubcategoriesByCategory = (categoryId: any | null) => {
   return useQuery({
     queryKey: ['subcategories', categoryId],
     queryFn: async () => {
       if (!categoryId) return [];
-      const token = getAuthToken();
+      // const token = getAuthToken();
       const { data } = await api.get(`/products/categories/${categoryId}/subcategories/`);
       return data.data || data;
     },
@@ -424,7 +440,20 @@ export const useSubcategoryProducts = (subcategoryId: string) => {
     },
     enabled: !!subcategoryId,
   });
-}; 
+};
+
+export const getSubcategoriesByCategoryId = async (categoryId: number): Promise<Subcategory[]> => {
+  const response = await api.get(`/products/categories/${categoryId}/subcategories/`);
+  return response.data;
+};
+
+export const useSubcategoryByCategoryId = (categoryId: number | undefined) => {
+  return useQuery<Subcategory[]>({
+    queryKey: ['subcategories', categoryId],
+    queryFn: () => getSubcategoriesByCategoryId(categoryId!),
+    enabled: !!categoryId, // avoid query firing with undefined
+  });
+};
 
 
 export const useCreateOrder = () => {
@@ -432,7 +461,7 @@ export const useCreateOrder = () => {
     mutationFn: async (orderData: Record<string, any>) => {
       const token = getAuthToken();
 
-      const { data } = await api.post('/products/orders/', orderData, {
+      const { data } = await api.post('/products/my-orders/', orderData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -472,7 +501,7 @@ export const useOrders = () => {
     queryKey: ['orders'],
     queryFn: async () => {
       const token = getAuthToken();
-      const { data } = await api.get('/products/orders/', {
+      const { data } = await api.get('/products/my-orders/', {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('Fetched orders:', data);
@@ -486,7 +515,7 @@ export const useOrder = (id:any) => {
     queryKey: ['order', id],
     queryFn: async () => {
       const token = getAuthToken();
-      const { data } = await api.get(`/products/orders/${id}/`, {
+      const { data } = await api.get(`/products/my-orders/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log('Fetched oeder details:', data);
@@ -502,7 +531,7 @@ export const useUpdateOrder = () => {
   return useMutation({
     mutationFn: async ({ id, updateData }: UpdateParams) => {
       const token = getAuthToken();
-      const { data } = await api.put(`/products/orders/${id}/`, updateData, {
+      const { data } = await api.put(`/products/my-orders/${id}/`, updateData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(`Updated order ${id}:`, data);
@@ -516,7 +545,7 @@ export const usePatchOrder = () => {
   return useMutation({
     mutationFn: async ({ id, updateData }: UpdateParams) => {
       const token = getAuthToken();
-      const { data } = await api.patch(`/products/orders/${id}/`, updateData, {
+      const { data } = await api.patch(`/products/my-orders/${id}/`, updateData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(`Patched order ${id}:`, data);
@@ -560,7 +589,7 @@ export const usePatchOrder = () => {
 const fetchOrderTracking = async (orderTrackingId: string) => {
   const token = getAuthToken();
 
-  const { data } = await api.get('/products/orders/track-order/', {
+  const { data } = await api.get('/products/my-orders/track-order/', {
     params: { 'order-tracking-id': orderTrackingId }, // ✅ as query param
     headers: {
       Authorization: `Bearer ${token}`,
@@ -576,19 +605,7 @@ export const useTrackOrder = () => {
   });
 };
 
-export const useCreateShippingAddress = () => {
-  return useMutation({
-    mutationFn: async (shippingData: Record<string, any>) => {
-      const token = getAuthToken();
-      console.log(getAuthToken());
-      const { data } = await api.post("/products/user-shipping-address/", shippingData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Shipping address added:", data);
-      return data;
-    },
-  });
-};
+
 
 // Payment Hook
 export const useCreatePayment = () => {
@@ -623,8 +640,10 @@ export const useShippingAddresses = () => {
   return useQuery<ShippingAddress[]>({
     queryKey: ['user-shipping-address'],
     queryFn: async () => {
-      const { data } = await api.get('/products/user-shipping-address/');
-      return data;
+      const { data } = await api.get('/products/address-book/');
+      console.log('Fetched user shipping addresses:', data);
+      console.log('Fetched user shipping addresses:', data);
+      return data.results;
     },
   });
 };
@@ -634,7 +653,7 @@ export const useShippingAddress = (id: number | string) => {
   return useQuery<ShippingAddress>({
     queryKey: ['user-shipping-address', id],
     queryFn: async () => {
-      const { data } = await api.get(`/products/user-shipping-address/${id}/`);
+      const { data } = await api.get(`/products/address-book/${id}/`);
       return data;
     },
     enabled: !!id,
@@ -660,23 +679,37 @@ export const useShippingAddress = (id: number | string) => {
 //   });
 // };
 
-// UPDATE full shipping address (PUT)
-export const useUpdateShippingAddress = () => {
-  const queryClient = useQueryClient();
+// export const useCreateShippingAddress = () => {
+//   return useMutation({
+//     mutationFn: async (shippingData: Record<string, any>) => {
+//       const token = getAuthToken();
+//       console.log(getAuthToken());
+//       const { data } = await api.post("/products/address-book/", shippingData, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       console.log("Shipping address added:", data);
+//       return data;
+//     },
+//   });
+// };
 
-  return useMutation({
-    mutationFn: async ({ id, updatedData }: { id: number | string; updatedData: ShippingAddress }) => {
-      const res = await api.put(`/products/user-shipping-address/${id}/`, updatedData);
-      return res.data;
-    },
-    onSuccess: (_, { id }) => {
-      toast.success('Shipping address updated!');
-    },
-    onError: () => {
-      toast.error('Failed to update shipping address.');
-    },
-  });
-};
+// UPDATE full shipping address (PUT)
+// export const useUpdateShippingAddress = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async ({ id, updatedData }: { id: number | string; updatedData: ShippingAddress }) => {
+//       const res = await api.put(`/products/address-book/${id}/`, updatedData);
+//       return res.data;
+//     },
+//     onSuccess: (_, { id }) => {
+//       toast.success('Shipping address updated!');
+//     },
+//     onError: () => {
+//       toast.error('Failed to update shipping address.');
+//     },
+//   });
+// };
 
 // PARTIAL update (PATCH)
 export const usePatchShippingAddress = () => {
@@ -684,7 +717,7 @@ export const usePatchShippingAddress = () => {
 
   return useMutation({
     mutationFn: async ({ id, patchData }: { id: number | string; patchData: Partial<ShippingAddress> }) => {
-      const res = await api.patch(`/products/user-shipping-address/${id}/`, patchData);
+      const res = await api.patch(`/products/address-book/${id}/`, patchData);
       return res.data;
     },
     onSuccess: (_, { id }) => {
@@ -696,20 +729,97 @@ export const usePatchShippingAddress = () => {
   });
 };
 
+// Full update (PUT)
+// export const usePutShippingAddress = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async ({ id, patchData }: { id: number | string; patchData: Partial<ShippingAddress> }) => {
+//       const res = await api.put(`/products/address-book/${id}/`, patchData);
+//       return res.data;
+//     },
+//     onSuccess: (_, { id }) => {
+//       toast.success('Shipping address partially updated!');
+//     },
+//     onError: () => {
+//       toast.error('Failed to partially update address.');
+//     },
+//   });
+// };
+
+// // DELETE shipping address
+// export const useDeleteShippingAddress = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: async (id: number | string) => {
+//       await api.delete(`/products/address-book/${id}/`);
+//       return id;
+//     },
+//     onSuccess: (deletedId) => {
+//       toast.success('Shipping address deleted!');
+//     },
+//     onError: () => {
+//       toast.error('Failed to delete shipping address.');
+//     },
+//   });
+// };
+
+// Full update (PUT)
+export const useUpdateShippingAddress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, updatedData }: { id: string; updatedData: Address }) => {
+      const res = await api.put(`/products/address-book/${id}/`, updatedData);
+      return res.data;
+    },
+    onSuccess: (data, { id }) => {
+      toast.success('Shipping address updated!');
+    },
+    onError: (error) => {
+      console.error('Update error:', error);
+      toast.error('Failed to update shipping address.');
+    },
+  });
+};
+
+
+
+// CREATE new address
+export const useCreateShippingAddress = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newAddress: Omit<Address, 'id'>) => {
+      const res = await api.post('/products/address-book/', newAddress);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('New address created!');
+    },
+    onError: (error) => {
+      console.error('Create error:', error);
+      toast.error('Failed to create new address.');
+    },
+  });
+};
+
 // DELETE shipping address
 export const useDeleteShippingAddress = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number | string) => {
-      await api.delete(`/products/user-shipping-address/${id}/`);
+    mutationFn: async (id: string) => {
+      await api.delete(`/products/address-book/${id}/`);
       return id;
     },
     onSuccess: (deletedId) => {
-      toast.success('Shipping address deleted!');
+      toast.success('Address deleted!');
     },
-    onError: () => {
-      toast.error('Failed to delete shipping address.');
+    onError: (error) => {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete address.');
     },
   });
 };

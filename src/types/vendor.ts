@@ -34,35 +34,55 @@ export interface VendorStore {
 }
 
 export interface Product {
-  id: string;
+  selling_price?: any;
+  rating: number;
+  originalPrice: any;
+  id: any;
   name: string;
   description: string;
   price: number;
-  discount: number;
-  stock: number;
-  category: string;
-  brand: string;
-  weight: string;
-  gender: string;
-  sizes: string[];
-  colors: string[];
-  images: string[];
-  storeId: string;
-  tagNumber: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  discount_price: number;
+  discount_rate: number;
+  promo_code: string;
+  is_promo_code_applicable: boolean;
+  is_negotiable: boolean;
+  is_hidden: boolean;
+  is_archived: boolean;
+  is_deleted: boolean;
+  is_hot: boolean;
+  is_featured: boolean;
+  is_best_deal: boolean;
+  is_top_rated: boolean;
+  is_new_arrival: boolean;
+  is_flash_sale: boolean;
+  is_best_seller: boolean;
+  images: {
+    is_display_photo: unknown;
+    base64_product_image: any; id: number; image_url: string 
+}[];
+  variations: ProductVariation[];
+  category: any;
+  subcategory: any;
+  image_files: File[];
+  remove_image_ids: number[];
+  average_rating?: number;
+  reviews?: number;
 }
 
+export interface ProductVariation {
+  color: string;
+  size: string;
+  quantity: number;
+}
 export interface VendorOrder {
   id: string;
-  orderNumber: string;
-  customerName: string;
-  products: OrderProduct[];
-  totalAmount: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  orderDate: string;
-  deliveryDate?: string;
+  order_tracking_id: string;
+  user: string;
+  items: Product[];
+  total_amount: number;
+  payment_status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  created_at: string;
+  updated_at: string;
 }
 
 export interface OrderProduct {
@@ -84,15 +104,26 @@ export interface CreateProductData {
   name: string;
   description: string;
   price: number;
-  discount: number;
-  stock: number;
-  category: string;
-  brand: string;
-  weight: string;
-  gender: string;
-  sizes: string[];
-  colors: string[];
-  tagNumber: string;
+  // discount: number;
+  discount_price?: number;
+  discount_rate?: number;
+  promo_code?: string;
+  is_promo_code_applicable: boolean;
+  is_negotiable: boolean;
+  is_hidden: boolean;
+  is_archived: boolean;
+  is_deleted: boolean;
+  is_hot: boolean;
+  is_featured: boolean;
+  is_best_deal: boolean;
+  is_top_rated: boolean;
+  is_new_arrival: boolean;
+  is_flash_sale: boolean;
+  is_best_seller: boolean;
+  category_id: number;
+  subcategory_id: number;
+  variations: string[]; 
+  images: string[];
 }
 
 export interface UpdateProductData extends Partial<CreateProductData> {

@@ -217,27 +217,65 @@ export const useUserDetails = () => {
 };
 
 // Upload profile picture (POST)
+// export const useUploadProfilePic = () => {
+//   return useMutation({
+//     mutationFn: async (file: File) => {
+//       const formData = new FormData();
+//       formData.append('profile_image', file);
+
+//       const { data } = await api.post('/accounts/user/profile-pics/', formData, {
+//         // headers: {
+//         //   'Content-Type': 'multipart/form-data',
+//         //   'Accept': 'application/json',
+//         //   'Origin': 'http://localhost:5173',
+//         //   'cors': 'true',
+//         // },
+//       });
+//       return data;  
+//     },
+//     onSuccess: () => {
+//       toast.success('Profile picture updated!');
+//     },
+//     onError: () => {
+//       toast.error('Failed to update profile picture.');
+//     },
+//   });
+// };
+
+// Upload profile picture (POST)
 export const useUploadProfilePic = () => {
   return useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append('profile_image', file);
 
-      const { data } = await api.post('/accounts/user/profile-pics/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-          'Origin': 'http://localhost:5173',
-          'cors': 'true',
-        },
-      });
-      return data;
+      try {
+        const { data } = await api.patch('/accounts/user/profile-pics/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true, 
+        });
+        return data;
+      } catch (error) {
+        console.error('Upload error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast.success('Profile picture updated!');
     },
-    onError: () => {
-      toast.error('Failed to update profile picture.');
+    onError: (error: any) => {
+      console.error('Upload failed:', error);
+      if (error.response) {
+        if (error.response.status === 413) {
+          toast.error('File too large. Please choose a smaller image.');
+        } else {
+          toast.error(`Failed to update profile picture: ${error.response.data?.detail || error.message}`);
+        }
+      } else {
+        toast.error('Network error. Please check your connection.');
+      }
     },
   });
 };

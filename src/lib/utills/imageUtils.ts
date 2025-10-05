@@ -120,14 +120,20 @@ export const getOptimizedImageSrc = async (
   }
 ): Promise<string> => {
   try {
-    const imageUrl = extractImageSrc(source);
-    
-    // Check if it's already a base64 string
+    let imageUrl = extractImageSrc(source);
+
+    // Detect raw base64 without prefix and prepend it
+    const base64Regex = /^[A-Za-z0-9+/]+={0,2}$/; // basic Base64 check
+    if (!imageUrl.startsWith('data:') && base64Regex.test(imageUrl)) {
+      imageUrl = `data:image/png;base64,${imageUrl}`;
+    }
+
+    // Already full base64
     if (imageUrl.startsWith('data:')) {
       return imageUrl;
     }
-    
-    // Check if it's a placeholder
+
+    // Placeholder case
     if (imageUrl.includes('placeholder')) {
       return createPlaceholderBase64(
         options?.width || 200, 
@@ -135,8 +141,8 @@ export const getOptimizedImageSrc = async (
         options?.placeholder || "No Image"
       );
     }
-    
-    // Convert external URLs to base64 if requested or if it fails to load normally
+
+    // Optionally convert
     if (options?.forceConversion) {
       try {
         const base64 = await convertToBase64(imageUrl);
@@ -146,7 +152,7 @@ export const getOptimizedImageSrc = async (
         return imageUrl;
       }
     }
-    
+
     return imageUrl;
   } catch (error) {
     console.error('Failed to load image:', error);
@@ -157,6 +163,7 @@ export const getOptimizedImageSrc = async (
     );
   }
 };
+
 
 
 

@@ -91,7 +91,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       }
       
       // Load placeholder
-      const placeholderSrc = createPlaceholderBase64(width || 200, height || 200, placeholder);
+      const placeholderSrc = createPlaceholderBase64(width || 10, height || 10, placeholder);
       setImageSrc(placeholderSrc);
       onError?.();
     }
@@ -107,21 +107,21 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   }
 
   return (
-    <div className={`relative ${containerClassName}`} onClick={onClick}>
+    <div 
+      className={`relative ${containerClassName}`} 
+      onClick={onClick}
+      style={{ width, height }} // Add width and height to the container
+    >
       <img
         src={imageSrc}
         alt={alt}
-        className={`transition-opacity duration-300 ${className}`}
+        className={`w-full h-full object-cover ${className}`} // Changed to object-cover
         loading={loading}
         onLoad={handleImageLoad}
         onError={handleImageError}
-        style={width || height ? { 
-          width: width ? `${width}px` : undefined, 
-          height: height ? `${height}px` : undefined 
-        } : undefined}
       />
       
-      {/* Optional overlay for interactive images */}
+      {/* Optional overlay */}
       {onClick && (
         <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-all duration-200 cursor-pointer" />
       )}

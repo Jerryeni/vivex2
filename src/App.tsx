@@ -51,6 +51,7 @@ import Cookies from 'js-cookie';
 import CategoryPage from './pages/shop/category';
 import VendorLayout from './components/vendor/layout/VendorLayout';
 import MyStores from './pages/vendor/MyStores';
+import VendorOrders from './pages/vendor/VendorOrders';
 import SampleDashboard from './pages/vendor/Dashboard';
 import CreateStoreForm from './components/vendor/CreateStoreForm';
 import ProductsList from './components/vendor/ProductsList';
@@ -127,15 +128,6 @@ function Layout() {
             <Route path="/products/:id" element={<ProductDetails />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
 
-            {/* <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute allowedRoles={['user']}>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            /> */}
-
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order/confirm" element={<Confirmation />} />
 
@@ -151,7 +143,7 @@ function Layout() {
             </Route>
 
             {/* Admin Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['vendor']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<Products />} />
@@ -169,37 +161,22 @@ function Layout() {
             </Route>
 
             {/* Vendor Routes */}
-            <Route path="/vendor" element={<VendorLayout />}>
-              <Route index element={<Navigate to="/vendor/dashboard" replace />} />
-              <Route path="dashboard" element={<SampleDashboard />} />
-              <Route path="stores" element={<MyStores />} />
-              <Route path="stores/create" element={<CreateStoreForm />} />
-              <Route path="stores/:storeId/products" element={<ProductsList />} />
-              <Route path="stores/:storeId/products/create" element={<ProductForm />} />
-              <Route path="stores/:storeId/products/:productId/edit" element={<ProductForm />} />
-              <Route path="products" element={<MyProducts />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="profile" element={<ProfileSettings />} />
-              <Route path="business-docs" element={<BusinessDocs />} />
+            <Route element={<ProtectedRoute allowedRoles={['vendor']} />}>
+              <Route path="/vendor" element={<VendorLayout />}>
+                <Route index element={<Navigate to="/vendor/dashboard" replace />} />
+                <Route path="dashboard" element={<SampleDashboard />} />
+                <Route path="stores" element={<MyStores />} />
+                <Route path="stores/create" element={<CreateStoreForm />} />
+                <Route path="stores/:storeId/products" element={<ProductsList />} />
+                <Route path="stores/:storeId/products/create" element={<ProductForm />} />
+                <Route path="stores/:storeId/products/:productId/edit" element={<ProductForm />} />
+                <Route path="products" element={<MyProducts />} />
+                <Route path="orders" element={<VendorOrders />} />
+                <Route path="profile" element={<ProfileSettings />} />
+                <Route path="business-docs" element={<BusinessDocs />} />
+              </Route>
             </Route>
 
-
-            {/* <Route path="/checkout" element={<ProtectedRoute children={<Checkout />} />} /> */}
-
-
-
-            {/* <Route index element={<Dashboard />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="orders" element={<Orders />} />
-              <Route path="orders/:id" element={<OrderDetails />} />
-              <Route path="wishlist" element={<Wishlist />} />
-              <Route path="cards" element={<Cards />} />
-              <Route path="history" element={<History />} />
-              <Route path="settings" element={<Settings />} />
-            </Route> */}
-
-            {/* Admin Routes */}
 
 
             {/* Catch-All Route */}

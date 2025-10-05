@@ -97,7 +97,7 @@ export function Orders() {
                       <tbody>
                         {recentOrders.map((order: any) => (
                           <tr key={order.id} className="border-b last:border-0">
-                            <td className="py-4">{order.id}</td>
+                            <td className="py-4">{order.order_tracking_id}</td>
                             <td className="py-4">
                               <span
                                 className={`inline-block px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}
@@ -106,7 +106,7 @@ export function Orders() {
                               </span>
                             </td>
                             <td className="py-4">
-                              {formatCurrency(order.total_amount)} ({order.products?.length ?? 0} Products)
+                              {formatCurrency(order.total_amount)} ({order.items?.length ?? 0} Products)
                             </td>
                             <td className="py-4 text-right">
                               <Link to={`/user/orders/${order.id}`}>

@@ -17,7 +17,7 @@ interface CartItem {
     discount_price: number;
     price: number;
     images: [{
-      image_url: string;
+      base64_product_image: string;
     }];
   };
   product_variation: {

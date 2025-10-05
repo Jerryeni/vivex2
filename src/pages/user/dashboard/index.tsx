@@ -16,6 +16,7 @@ import { useBrowsingHistory, useOrders } from '../../../lib/api/product';
 import { Modal } from '../../../components/ui/general-modal';
 import { useProfilePic, useUpdateUser, useUploadProfilePic } from '../../../lib/api/auth';
 import { ProductSkeleton } from '../../../components/ui/ProductSkeleton';
+import { OptimizedImage } from '../../../components/ui/OptimizedImage';
 
 
 
@@ -164,7 +165,7 @@ export function Dashboard() {
                           <label htmlFor="profile-upload" className="block w-full h-full cursor-pointer">
                             {profilePicUrl ? (
                               // Show actual image if available
-                              <img
+                              <OptimizedImage
                                 src={profilePicUrl}
                                 alt="Profile"
                                 className="w-16 h-16 rounded-full object-cover"
@@ -414,7 +415,7 @@ export function Dashboard() {
                       <tbody>
                         {recentOrders.map((order: any) => (
                           <tr key={order.id} className="border-b last:border-0">
-                            <td className="py-4">{order.id}</td>
+                            <td className="py-4">{order.order_tracking_id}</td>
                             <td className="py-4">
                               <span
                                 className={`inline-block px-2 py-1 rounded text-sm ${getStatusColor(order.status)}`}
@@ -423,7 +424,7 @@ export function Dashboard() {
                               </span>
                             </td>
                             <td className="py-4">
-                              {formatCurrency(order.total_amount)} ({order.products?.length ?? 0} Products)
+                              {formatCurrency(order.total_amount)} ({order.items?.length ?? 0} Products)
                             </td>
                             <td className="py-4 text-right">
                               <Link to={`/user/orders/${order.id}`}>

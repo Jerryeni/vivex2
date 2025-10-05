@@ -271,7 +271,7 @@ export const BestDeals: React.FC = () => {
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold">Best Deals</h2>
           <div className="bg-yellow-100 px-3 py-1 rounded text-sm">
-            Deals ends in <span className='bg-yellow/50 p-2'>16d : 21h : 57m : 23s</span>
+            {/* Deals ends in <span className='bg-yellow/50 p-2'>16d : 21h : 57m : 23s</span> */}
           </div>
         </div>
         <Link to="/products" className="text-blue-500 hover:underline">

@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/button';
 import useWishlistStore from '../../../lib/store/useWishlistStore';
 import useCartStore from '../../../lib/store/useCartStore';
 import toast from 'react-hot-toast';
+import { OptimizedImage } from '../../../components/ui/OptimizedImage';
 
 export function Wishlist() {
   const { wishlist, fetchWishlist, removeFromWishlist } = useWishlistStore();
@@ -66,10 +67,10 @@ export function Wishlist() {
                           <tr key={item.id} className="border-b last:border-0">
                             <td className="py-4">
                               <div className="flex items-center gap-4">
-                                <img
-                                  src={item.product?.images?.[0]?.image_url || `https://via.placeholder.com/64?text=${item.product?.name?.[0]}`}
+                                <OptimizedImage
+                                  src={item.product?.images?.[0]?.base64_product_image}
                                   alt={item.product?.name || "Product Image"}
-                                  className="w-16 h-16 object-cover rounded"
+                                  containerClassName="w-16 h-16 object-cover rounded"
                                 />
                                 <div>
                                   <h3 className="font-semibold line-clamp-1">{item.product?.name}</h3>
